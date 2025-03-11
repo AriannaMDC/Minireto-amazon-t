@@ -24,7 +24,7 @@ return new class extends Migration
             $table->boolean('devolucioGratis')->default(false);
             $table->timestamp('dataAfegit')->useCurrent();
             $table->integer('stock')->default(0);
-            $table->foreignId('categoriaId')->constrained('categories')->onDelete('cascade');
+            $table->foreignId('categoria_id')->constrained('categories')->onDelete('cascade');
             $table->timestamps();
         });
     }

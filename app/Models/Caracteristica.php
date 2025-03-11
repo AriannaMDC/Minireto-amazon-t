@@ -10,4 +10,10 @@ class Caracteristica extends Model
     use HasFactory;
 
     protected $table = 'caracteristiques';
+
+    protected $fillable = ['nom', 'propietats', 'img', 'producte_id'];
+
+    public function producte() {
+        return $this->belongsTo(Producte::class);
+    }
 }

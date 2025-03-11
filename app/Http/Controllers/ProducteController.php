@@ -11,7 +11,7 @@ class ProducteController extends Controller
      * Display a listing of the resource.
      */
     public function index() {
-        $productes = Producte::all();
+        $productes = Producte::with(['categoria', 'caracteristiques'])->get();
 
         return response()->json($productes, 200);
     }
@@ -21,9 +21,9 @@ class ProducteController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'nom' => 'required|string|max:255',
-            'descr' => 'nullable|string',
+        $validated = $request->validate([
+            'nom' => 'required',
+            'descr' => 'nullable',
             'valoracio' => 'nullable|numeric|min:0|max:5',
             'num_resenyes' => 'nullable|integer|min:0',
             'preu' => 'required|numeric|min:0',
@@ -32,13 +32,23 @@ class ProducteController extends Controller
             'devolucio' => 'required|boolean',
             'devolucioGratis' => 'required|boolean',
             'stock' => 'required|integer|min:0',
-            'categoriaId' => 'required|exists:categories,id',
+            'categoria_id' => 'required|exists:categories,id',
+            'caracteristiques' => 'nullable|array',
+            'caracteristiques.*.nom' => 'required',
+            'caracteristiques.*.propietats' => 'required|json',
+            'caracteristiques.*.img' => 'required|json',
         ]);
 
-        $producte = Producte::create($validatedData);
+        $producte = Producte::create($validated);
+
+        if (isset($validated['caracteristiques'])) {
+            foreach ($validated['caracteristiques'] as $caracteristica) {
+                $producte->caracteristiques()->create($caracteristica);
+            }
+        }
 
         if ($producte) {
-            return response()->json($producte, 201);
+            return response()->json($producte->load('caracteristiques'), 200);
         } else {
             return response()->json(['error' => 'Product could not be created'], 500);
         }
@@ -49,7 +59,7 @@ class ProducteController extends Controller
      */
     public function show(string $id)
     {
-        $producte = Producte::find($id);
+        $producte = Producte::with(['categoria', 'caracteristiques'])->find($id);
 
         if ($producte) {
             return response()->json($producte, 200);
@@ -64,8 +74,8 @@ class ProducteController extends Controller
     public function update(Request $request, string $id)
     {
         $validatedData = $request->validate([
-            'nom' => 'required|string|max:255',
-            'descr' => 'nullable|string',
+            'nom' => 'required',
+            'descr' => 'nullable',
             'valoracio' => 'nullable|numeric|min:0|max:5',
             'num_resenyes' => 'nullable|integer|min:0',
             'preu' => 'required|numeric|min:0',
@@ -74,14 +84,26 @@ class ProducteController extends Controller
             'devolucio' => 'required|boolean',
             'devolucioGratis' => 'required|boolean',
             'stock' => 'required|integer|min:0',
-            'categoriaId' => 'required|exists:categories,id',
+            'categoria_id' => 'required|exists:categories,id',
+            'caracteristiques' => 'nullable|array',
+            'caracteristiques.*.nom' => 'required_with:caracteristiques',
+            'caracteristiques.*.propietats' => 'required_with:caracteristiques|json',
+            'caracteristiques.*.img' => 'required_with:caracteristiques|json',
         ]);
 
         $producte = Producte::find($id);
 
         if ($producte) {
             $producte->update($validatedData);
-            return response()->json($producte, 200);
+
+            if (isset($validatedData['caracteristiques'])) {
+                $producte->caracteristiques()->delete();
+                foreach ($validatedData['caracteristiques'] as $caracteristica) {
+                    $producte->caracteristiques()->create($caracteristica);
+                }
+            }
+
+            return response()->json($producte->load('caracteristiques'), 200);
         } else {
             return response()->json(['error' => 'Product not found'], 404);
         }

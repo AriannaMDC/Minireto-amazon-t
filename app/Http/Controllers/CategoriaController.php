@@ -30,7 +30,7 @@ class CategoriaController extends Controller
         $categoria = Categoria::create($request->all());
 
         if ($categoria) {
-            return response()->json($categoria, 201);
+            return response()->json($categoria, 200);
         }
 
         return response()->json(['error' => 'Error al crear la categoria'], 505);
@@ -74,7 +74,7 @@ class CategoriaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function dstroy(string $id) {
+    public function destroy(string $id) {
         $categoria = Categoria::find($id);
 
         if (!$categoria) {
