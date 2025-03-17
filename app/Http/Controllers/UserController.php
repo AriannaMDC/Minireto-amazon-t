@@ -26,9 +26,11 @@ class UserController extends Controller
         $request->validate([
             'usuari' => 'required|unique:users,usuari',
             'nom' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
-            'rol' => 'required|in:client,vendedor',
+            'rol' => 'required|in:client,vendedor,admin',
+            'direccio' => 'required|string',
+            'img' => 'nullable|string',
         ]);
 
         $user = new User();
@@ -109,9 +111,31 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'password' => 'required|min:8|confirmed',
+            'password_confirmation' => 'required',
+            'direccio' => 'required|string',
+        ]);
+
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->direccio = $request->direccio;
+
+        if ($user->save()) {
+            return response()->json(['message' => 'User updated successfully'], 200);
+        }
+
+        return response()->json(['error' => 'Error updating user'], 500);
     }
 
+    /**
+     * Update the password of the user.
+     */
     public function updatePassword(Request $request)
     {
         $email = $request->query('email');

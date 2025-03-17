@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('direccio_usuaris', function (Blueprint $table) {
+        Schema::create('metode_pagament', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->string('provincia');
-            $table->string('comarca');
-            $table->string('direccio');
-            $table->string('numero_telefon');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->enum('tipus', ['visa', 'paypal', 'mastercard']);
+            $table->string('titular');
+            $table->string('numero');
+            $table->string('caducitat');
+            $table->string('cvv');
+            $table->foreignId('usuari_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('direccio_usuaris');
+        //
     }
 };

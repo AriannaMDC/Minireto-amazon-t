@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProducteController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MetodePagamentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,3 +57,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/categories/{id}', [CategoriaController::class, 'update']);
     Route::delete('/categories/{id}', [CategoriaController::class, 'destroy']);
 });
+
+// Metode Pagament
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/metode_pagament/{id}', [MetodePagamentController::class, 'show']);
+    Route::get('/metode_pagament/user/{usuari_id}', [MetodePagamentController::class, 'getByUserId']);
+    Route::post('/metode_pagament', [MetodePagamentController::class, 'store']);
+    Route::put('/metode_pagament/{id}', [MetodePagamentController::class, 'update']);
+    Route::delete('/metode_pagament/{id}', [MetodePagamentController::class, 'destroy']);
+});
+

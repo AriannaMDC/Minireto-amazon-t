@@ -19,11 +19,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('img')->nullable();
-            $table->enum('rol', ['client', 'vendedor', 'moderator'])->default('client');
-            $table->integer('ofertes')->default(0);
+            $table->enum('rol', ['client', 'vendedor', 'admin'])->default('client');
+            $table->string('direccio');
             $table->rememberToken();
             $table->timestamps();
-            // direcion envio (tabla aparte) && metodos de pago (tabla aparte)
         });
     }
 
