@@ -27,25 +27,22 @@ Route::post('/user/login', [UserController::class, 'login']);
 Route::post('/user/register', [UserController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/id/{id}', [UserController::class, 'show']);
+    Route::get('/user/username', [UserController::class, 'getUserByUsername']);
     Route::post('/user/logout', [UserController::class, 'logout']);
     Route::put('/user/update-password', [UserController::class, 'updatePassword']);
-    Route::put('/user/{id}', [UserController::class, 'update']);
-    Route::delete('/user/{id}', [UserController::class, 'destroy']);
+    Route::put('/user', [UserController::class, 'update']);
+    Route::delete('/user', [UserController::class, 'destroy']);
 });
-
-
-Route::get('/user', [UserController::class, 'index']);
-Route::get('/user/id/{id}', [UserController::class, 'show']);
-Route::get('/user/username', [UserController::class, 'getUserByUsername']);
 
 // Productes
 Route::get('/products', [ProducteController::class, 'index']);
 Route::get('/products/{id}', [ProducteController::class, 'show']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'checkVendorRole')->group(function () {
     Route::post('/products', [ProducteController::class, 'store']);
-    Route::put('/products/{id}', [ProducteController::class, 'update']);
-    Route::delete('/products/{id}', [ProducteController::class, 'destroy']);
+    Route::put('/products/{id}', [ProducteController::class, 'update'])->middleware('checkProductUserId');
+    Route::delete('/products/{id}', [ProducteController::class, 'destroy'])->middleware('checkProductUserId');
 });
 
 // Categories
@@ -66,4 +63,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/metode_pagament/{id}', [MetodePagamentController::class, 'update']);
     Route::delete('/metode_pagament/{id}', [MetodePagamentController::class, 'destroy']);
 });
-

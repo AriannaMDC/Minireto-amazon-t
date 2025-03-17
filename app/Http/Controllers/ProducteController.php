@@ -10,8 +10,14 @@ class ProducteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {
-        $productes = Producte::with(['categoria', 'caracteristiques'])->get();
+    public function index(Request $request) {
+        $destacat = $request->query('destacat');
+
+        if ($destacat === 'true') {
+            $productes = Producte::with(['categoria', 'caracteristiques'])->where('destacat', true)->get();
+        } else {
+            $productes = Producte::with(['categoria', 'caracteristiques'])->get();
+        }
 
         return response()->json($productes, 200);
     }
@@ -38,6 +44,8 @@ class ProducteController extends Controller
             'caracteristiques.*.propietats' => 'required|json',
             'caracteristiques.*.img' => 'required|json',
         ]);
+
+        $validated['vendor_id'] = auth()->user()->id;
 
         $producte = Producte::create($validated);
 
@@ -84,6 +92,7 @@ class ProducteController extends Controller
             'devolucio' => 'required|boolean',
             'devolucioGratis' => 'required|boolean',
             'stock' => 'required|integer|min:0',
+            'oferta' => 'nullable|integer|min:0',
             'categoria_id' => 'required|exists:categories,id',
             'caracteristiques' => 'nullable|array',
             'caracteristiques.*.nom' => 'required_with:caracteristiques',
@@ -94,6 +103,7 @@ class ProducteController extends Controller
         $producte = Producte::find($id);
 
         if ($producte) {
+            $validatedData['vendor_id'] = auth()->user()->id;
             $producte->update($validatedData);
 
             if (isset($validatedData['caracteristiques'])) {

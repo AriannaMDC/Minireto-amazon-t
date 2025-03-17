@@ -12,16 +12,17 @@ class MetodePagamentController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'tipus' => 'required|in:visa,paypal,mastercard',
             'titular' => 'required',
             'numero' => 'required|digits:16',
             'caducitat' => ['required', 'regex:/^\d{2}\/\d{2}$/'],
             'cvv' => 'required|digits:3',
-            'usuari_id' => 'required|exists:users,id',
         ]);
 
-        $metodePagament = MetodePagament::create($validatedData);
+        $validated['usuari_id'] = $request->input('usuari_id');
+
+        $metodePagament = MetodePagament::create($validated);
 
         return response()->json($metodePagament, 200);
     }
@@ -59,7 +60,7 @@ class MetodePagamentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'tipus' => 'required|in:visa,paypal,mastercard',
             'titular' => 'required',
             'numero' => 'required|digits:16',
@@ -73,7 +74,7 @@ class MetodePagamentController extends Controller
             return response()->json(['message' => 'Metode Pagament not found'], 404);
         }
 
-        $metodePagament->update($validatedData);
+        $metodePagament->update($validated);
 
         return response()->json($metodePagament, 200);
     }

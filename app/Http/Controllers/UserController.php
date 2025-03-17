@@ -5,19 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $users = User::all();
-
-        return response()->json($users, 200);
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -27,11 +19,12 @@ class UserController extends Controller
             'usuari' => 'required|unique:users,usuari',
             'nom' => 'required',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
-            'rol' => 'required|in:client,vendedor,admin',
-            'direccio' => 'required|string',
-            'img' => 'nullable|string',
+            'password' => 'required|min:8|confirmed',
+            'password_confirmation' => 'required',
+            'rol' => 'required|in:client,vendedor',
         ]);
+
+        Log::debug('Request Data:', $request->all());
 
         $user = new User();
         $user->usuari = $request->usuari;
@@ -39,6 +32,7 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->rol = $request->rol;
+        $user->img = 'images/default.png';
 
         if($user->save()) {
             return response()->json($user, 200);
@@ -109,15 +103,18 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
         $request->validate([
-            'password' => 'required|min:8|confirmed',
-            'password_confirmation' => 'required',
-            'direccio' => 'required|string',
+            'password' => 'nullable|min:8|confirmed',
+            'password_confirmation' => 'nullable|same:password',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'direccio' => 'nullable|string',
         ]);
 
-        $user = User::find($id);
+        Log::debug('Request Data:', $request->all());
+
+        $user = User::find(Auth::user()->id);
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
@@ -125,6 +122,11 @@ class UserController extends Controller
 
         $user->password = Hash::make($request->password);
         $user->direccio = $request->direccio;
+
+        if ($request->hasFile('img')) {
+            $imagePath = $request->file('img')->store('images', 'public');
+            $user->img = $imagePath;
+        }
 
         if ($user->save()) {
             return response()->json(['message' => 'User updated successfully'], 200);
@@ -145,7 +147,8 @@ class UserController extends Controller
         }
 
         $request->validate([
-            'new_password' => 'required|min:8',
+            'new_password' => 'required|min:8|confirmed',
+            'new_password_confirmation' => 'required',
         ]);
 
         $user = User::where('email', $email)->first();
@@ -165,9 +168,9 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy()
     {
-        $user = User::find($id);
+        $user = User::find(Auth::user()->id);
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
