@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -32,7 +33,7 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->rol = $request->rol;
-        $user->img = 'images/default.png';
+        $user->img = 'images/users/default.png';
 
         if($user->save()) {
             return response()->json($user, 200);
@@ -124,12 +125,13 @@ class UserController extends Controller
         $user->direccio = $request->direccio;
 
         if ($request->hasFile('img')) {
-            $imagePath = $request->file('img')->store('images', 'public');
+            $imagePath = 'images/users/' . Str::random(32) . '.' . $request->file('img')->getClientOriginalExtension();
+            $request->file('img')->move(public_path('images/users'), $imagePath);
             $user->img = $imagePath;
         }
 
         if ($user->save()) {
-            return response()->json(['message' => 'User updated successfully'], 200);
+            return response()->json(['message' => 'User updated successfully', $user], 200);
         }
 
         return response()->json(['error' => 'Error updating user'], 500);

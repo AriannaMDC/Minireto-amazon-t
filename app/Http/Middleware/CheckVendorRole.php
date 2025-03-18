@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CheckVendorRole
 {
@@ -15,10 +16,10 @@ class CheckVendorRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
-        if (!$user || $user->role !== 'vendor') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (!$user || $user->rol !== 'vendedor') {
+            return response()->json(['message' => 'Unauthorized', $user->rol], 403);
         }
 
         return $next($request);

@@ -21,9 +21,10 @@ class Producte extends Model
         'dies',
         'devolucio',
         'devolucioGratis',
-        'dataAfegit',
         'stock',
         'categoria_id',
+        'destacat',
+        'vendedor_id'
     ];
 
     public function categoria() {

@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->foreignId('categoria_id')->constrained('categories')->onDelete('cascade');
             $table->integer('oferta')->default(0);
-            // $table->boolean('destacat')->default(false);
+            $table->boolean('destacat')->default(false);
             $table->foreignId('vendedor_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

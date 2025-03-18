@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Producte;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class ProducteController extends Controller
 {
@@ -39,18 +41,29 @@ class ProducteController extends Controller
             'devolucioGratis' => 'required|boolean',
             'stock' => 'required|integer|min:0',
             'categoria_id' => 'required|exists:categories,id',
+            'destacat' => 'nullable|boolean',
             'caracteristiques' => 'nullable|array',
             'caracteristiques.*.nom' => 'required',
             'caracteristiques.*.propietats' => 'required|json',
-            'caracteristiques.*.img' => 'required|json',
+            'caracteristiques.*.img' => 'nullable|array',
+            'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $validated['vendor_id'] = auth()->user()->id;
+        $validated['vendedor_id'] = Auth::user()->id;
 
         $producte = Producte::create($validated);
 
         if (isset($validated['caracteristiques'])) {
             foreach ($validated['caracteristiques'] as $caracteristica) {
+                if (isset($caracteristica['img'])) {
+                    $imagePaths = [];
+                    foreach ($caracteristica['img'] as $image) {
+                        $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
+                        $image->move(public_path('images/products'), $imageName);
+                        $imagePaths[] = 'images/products/' . $imageName;
+                    }
+                    $caracteristica['img'] = json_encode($imagePaths);
+                }
                 $producte->caracteristiques()->create($caracteristica);
             }
         }
@@ -81,7 +94,7 @@ class ProducteController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'nom' => 'required',
             'descr' => 'nullable',
             'valoracio' => 'nullable|numeric|min:0|max:5',
@@ -94,21 +107,26 @@ class ProducteController extends Controller
             'stock' => 'required|integer|min:0',
             'oferta' => 'nullable|integer|min:0',
             'categoria_id' => 'required|exists:categories,id',
+            'destacat' => 'nullable|boolean',
             'caracteristiques' => 'nullable|array',
             'caracteristiques.*.nom' => 'required_with:caracteristiques',
             'caracteristiques.*.propietats' => 'required_with:caracteristiques|json',
-            'caracteristiques.*.img' => 'required_with:caracteristiques|json',
+            'caracteristiques.*.img' => 'required_with:caracteristiques|file|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $producte = Producte::find($id);
 
         if ($producte) {
-            $validatedData['vendor_id'] = auth()->user()->id;
-            $producte->update($validatedData);
+            $producte->update($validated);
 
-            if (isset($validatedData['caracteristiques'])) {
+            if (isset($validated['caracteristiques'])) {
                 $producte->caracteristiques()->delete();
-                foreach ($validatedData['caracteristiques'] as $caracteristica) {
+                foreach ($validated['caracteristiques'] as $caracteristica) {
+                    if (isset($caracteristica['img'])) {
+                        $imageName = Str::random(32) . '.' . $caracteristica['img']->getClientOriginalExtension();
+                        $caracteristica['img']->move(public_path('images/products'), $imageName);
+                        $caracteristica['img'] = 'images/products/' . $imageName;
+                    }
                     $producte->caracteristiques()->create($caracteristica);
                 }
             }

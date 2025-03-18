@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('img');
-            // $table->boolean('destacat')->default(false);
+            $table->boolean('destacat')->default(false);
             $table->timestamps();
         });
     }
