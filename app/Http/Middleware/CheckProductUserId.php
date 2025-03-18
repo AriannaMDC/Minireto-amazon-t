@@ -25,7 +25,7 @@ class CheckProductUserId
             return response()->json(['message' => 'Product not found'], 404);
         }
 
-        if(!$user || $user->role !== 'vendor' || $product->vendor_id !== $user->id) {
+        if(!$user || $user->rol !== 'vendedor' || $product->vendedor_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Categoria;
+use App\Models\Caracteristica;
+use App\Models\User;
 
 class Producte extends Model
 {
@@ -28,10 +31,14 @@ class Producte extends Model
     ];
 
     public function categoria() {
-        return $this->belongsTo(Categoria::class);
+        return $this->belongsTo(Categoria::class, 'categoria_id');
     }
 
     public function caracteristiques() {
-        return $this->hasMany(Caracteristica::class);
+        return $this->hasMany(Caracteristica::class, 'producte_id');
+    }
+
+    public function vendedor() {
+        return $this->belongsTo(User::class, 'vendedor_id');
     }
 }

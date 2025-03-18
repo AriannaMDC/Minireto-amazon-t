@@ -71,7 +71,7 @@ class ProducteController extends Controller
         if ($producte) {
             return response()->json($producte->load('caracteristiques'), 200);
         } else {
-            return response()->json(['error' => 'Product could not be created'], 500);
+            return response()->json(['error' => 'El producte no s\'ha pogut crear'], 500);
         }
     }
 
@@ -85,7 +85,7 @@ class ProducteController extends Controller
         if ($producte) {
             return response()->json($producte, 200);
         } else {
-            return response()->json(['error' => 'Product not found'], 404);
+            return response()->json(['error' => 'Producte no trobat'], 404);
         }
     }
 
@@ -109,23 +109,40 @@ class ProducteController extends Controller
             'categoria_id' => 'required|exists:categories,id',
             'destacat' => 'nullable|boolean',
             'caracteristiques' => 'nullable|array',
-            'caracteristiques.*.nom' => 'required_with:caracteristiques',
-            'caracteristiques.*.propietats' => 'required_with:caracteristiques|json',
-            'caracteristiques.*.img' => 'required_with:caracteristiques|file|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'caracteristiques.*.nom' => 'required',
+            'caracteristiques.*.propietats' => 'required|json',
+            'caracteristiques.*.img' => 'nullable|array',
+            'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $producte = Producte::find($id);
+        $producte = Producte::with('caracteristiques')->find($id);
 
         if ($producte) {
             $producte->update($validated);
 
             if (isset($validated['caracteristiques'])) {
+                foreach ($producte->caracteristiques as $caracteristica) {
+                    if (isset($caracteristica->img)) {
+                        $images = json_decode($caracteristica->img, true);
+                        if (is_array($images)) {
+                            foreach ($images as $imagePath) {
+                                if (file_exists(public_path($imagePath))) {
+                                    unlink(public_path($imagePath));
+                                }
+                            }
+                        }
+                    }
+                }
                 $producte->caracteristiques()->delete();
                 foreach ($validated['caracteristiques'] as $caracteristica) {
                     if (isset($caracteristica['img'])) {
-                        $imageName = Str::random(32) . '.' . $caracteristica['img']->getClientOriginalExtension();
-                        $caracteristica['img']->move(public_path('images/products'), $imageName);
-                        $caracteristica['img'] = 'images/products/' . $imageName;
+                        $imagePaths = [];
+                        foreach ($caracteristica['img'] as $image) {
+                            $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
+                            $image->move(public_path('images/products'), $imageName);
+                            $imagePaths[] = 'images/products/' . $imageName;
+                        }
+                        $caracteristica['img'] = json_encode($imagePaths);
                     }
                     $producte->caracteristiques()->create($caracteristica);
                 }
@@ -133,7 +150,7 @@ class ProducteController extends Controller
 
             return response()->json($producte->load('caracteristiques'), 200);
         } else {
-            return response()->json(['error' => 'Product not found'], 404);
+            return response()->json(['error' => 'Producte no trobat'], 404);
         }
     }
 
@@ -145,10 +162,24 @@ class ProducteController extends Controller
         $producte = Producte::find($id);
 
         if ($producte) {
+            // Delete associated images
+            foreach ($producte->caracteristiques as $caracteristica) {
+                if (isset($caracteristica->img)) {
+                    $images = json_decode($caracteristica->img, true);
+                    if (is_array($images)) {
+                        foreach ($images as $imagePath) {
+                            if (file_exists(public_path($imagePath))) {
+                                unlink(public_path($imagePath));
+                            }
+                        }
+                    }
+                }
+            }
+
             $producte->delete();
-            return response()->json(['message' => 'Product deleted successfully'], 200);
+            return response()->json(['message' => 'Producte eliminat correctament'], 200);
         } else {
-            return response()->json(['error' => 'Product not found'], 404);
+            return response()->json(['error' => 'Producte no trobat'], 404);
         }
     }
 }

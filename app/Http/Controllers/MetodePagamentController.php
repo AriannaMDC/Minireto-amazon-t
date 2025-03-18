@@ -35,7 +35,7 @@ class MetodePagamentController extends Controller
         $metodePagament = MetodePagament::find($id);
 
         if (!$metodePagament) {
-            return response()->json(['message' => 'Metode Pagament not found'], 404);
+            return response()->json(['message' => 'Mètode de pagament no trobat'], 404);
         }
 
         return response()->json($metodePagament, 200);
@@ -49,7 +49,7 @@ class MetodePagamentController extends Controller
         $metodesPagament = MetodePagament::where('usuari_id', $usuari_id)->get();
 
         if ($metodesPagament->isEmpty()) {
-            return response()->json(['message' => 'No Metode Pagament found for this user'], 404);
+            return response()->json(['message' => 'No s\'ha trobat cap mètode de pagament per aquest usuari'], 404);
         }
 
         return response()->json($metodesPagament, 200);
@@ -71,7 +71,7 @@ class MetodePagamentController extends Controller
         $metodePagament = MetodePagament::find($id);
 
         if (!$metodePagament) {
-            return response()->json(['message' => 'Metode Pagament not found'], 404);
+            return response()->json(['message' => 'Mètode de pagament no trobat'], 404);
         }
 
         $metodePagament->update($validated);
@@ -87,11 +87,11 @@ class MetodePagamentController extends Controller
         $metodePagament = MetodePagament::find($id);
 
         if (!$metodePagament) {
-            return response()->json(['message' => 'Metode Pagament not found'], 404);
+            return response()->json(['message' => 'Mètode de pagament no trobat'], 404);
         }
 
         $metodePagament->delete();
 
-        return response()->json(['message' => 'Metode Pagament deleted successfully'], 200);
+        return response()->json(['message' => 'Mètode de pagament eliminat correctament'], 200);
     }
 }

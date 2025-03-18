@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -25,8 +24,6 @@ class UserController extends Controller
             'rol' => 'required|in:client,vendedor',
         ]);
 
-        Log::debug('Request Data:', $request->all());
-
         $user = new User();
         $user->usuari = $request->usuari;
         $user->nom = $request->nom;
@@ -39,12 +36,11 @@ class UserController extends Controller
             return response()->json($user, 200);
         }
 
-        return response()->json(['error' => 'Error creating user'], 500);
+        return response()->json(['error' => 'Error en crear l\'usuari'], 500);
     }
 
     public function login(Request $request)
     {
-        // Validate request input
         $request->validate([
             'usuari' => 'required|string',
             'password' => 'required|string',
@@ -53,7 +49,7 @@ class UserController extends Controller
         $user = User::where('usuari', $request->usuari)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
+            return response()->json(['error' => 'Credencials no vàlides'], 401);
         }
 
         $token = $user->createToken('authToken')->plainTextToken;
@@ -67,7 +63,7 @@ class UserController extends Controller
             $token->delete();
         });
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Sessió tancada correctament']);
     }
 
     /**
@@ -81,7 +77,7 @@ class UserController extends Controller
             return response()->json($user, 200);
         }
 
-        return response()->json(['error' => 'User not found'], 404);
+        return response()->json(['error' => 'Usuari no trobat'], 404);
     }
 
     public function getUserByUsername(Request $request)
@@ -89,7 +85,7 @@ class UserController extends Controller
         $username = $request->query('username');
 
         if (!$username) {
-            return response()->json(['error' => 'Username is required'], 400);
+            return response()->json(['error' => 'El nom d\'usuari és obligatori'], 400);
         }
 
         $user = User::where('usuari', $username)->first();
@@ -98,7 +94,7 @@ class UserController extends Controller
             return response()->json($user, 200);
         }
 
-        return response()->json(['error' => 'User not found'], 404);
+        return response()->json(['error' => 'Usuari no trobat'], 404);
     }
 
     /**
@@ -113,28 +109,30 @@ class UserController extends Controller
             'direccio' => 'nullable|string',
         ]);
 
-        Log::debug('Request Data:', $request->all());
-
         $user = User::find(Auth::user()->id);
 
         if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+            return response()->json(['error' => 'Usuari no trobat'], 404);
         }
 
         $user->password = Hash::make($request->password);
         $user->direccio = $request->direccio;
 
         if ($request->hasFile('img')) {
+            if ($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
+                unlink(public_path($user->img));
+            }
+
             $imagePath = 'images/users/' . Str::random(32) . '.' . $request->file('img')->getClientOriginalExtension();
             $request->file('img')->move(public_path('images/users'), $imagePath);
             $user->img = $imagePath;
         }
 
         if ($user->save()) {
-            return response()->json(['message' => 'User updated successfully', $user], 200);
+            return response()->json(['message' => 'Usuari actualitzat correctament', $user], 200);
         }
 
-        return response()->json(['error' => 'Error updating user'], 500);
+        return response()->json(['error' => 'Error en actualitzar l\'usuari'], 500);
     }
 
     /**
@@ -145,7 +143,7 @@ class UserController extends Controller
         $email = $request->query('email');
 
         if (!$email) {
-            return response()->json(['error' => 'Email is required'], 400);
+            return response()->json(['error' => 'El correu electrònic és obligatori'], 400);
         }
 
         $request->validate([
@@ -156,15 +154,15 @@ class UserController extends Controller
         $user = User::where('email', $email)->first();
 
         if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+            return response()->json(['error' => 'Usuari no trobat'], 404);
         }
 
         $user->password = Hash::make($request->new_password);
         if ($user->save()) {
-            return response()->json(['message' => 'Password updated successfully'], 200);
+            return response()->json(['message' => 'Contrasenya actualitzada correctament'], 200);
         }
 
-        return response()->json(['error' => 'Error updating password'], 500);
+        return response()->json(['error' => 'Error en actualitzar la contrasenya'], 500);
     }
 
     /**
@@ -175,13 +173,17 @@ class UserController extends Controller
         $user = User::find(Auth::user()->id);
 
         if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+            return response()->json(['error' => 'Usuari no trobat'], 404);
+        }
+
+        if ($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
+            unlink(public_path($user->img));
         }
 
         if ($user->delete()) {
-            return response()->json(['message' => 'User deleted successfully'], 200);
+            return response()->json(['message' => 'Usuari eliminat correctament'], 200);
         }
 
-        return response()->json(['error' => 'Error deleting user'], 500);
+        return response()->json(['error' => 'Error en eliminar l\'usuari'], 500);
     }
 }

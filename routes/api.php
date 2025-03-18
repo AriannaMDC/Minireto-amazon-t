@@ -23,14 +23,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Usuaris
-Route::post('/user/login', [UserController::class, 'login']);
-Route::post('/user/register', [UserController::class, 'register']);
+Route::middleware('guest')->group(function () {
+    Route::post('/user/login', [UserController::class, 'login']);
+    Route::post('/user/register', [UserController::class, 'register']);
+    Route::put('/user/update-password', [UserController::class, 'updatePassword']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/id/{id}', [UserController::class, 'show']);
     Route::get('/user/username', [UserController::class, 'getUserByUsername']);
     Route::post('/user/logout', [UserController::class, 'logout']);
-    Route::put('/user/update-password', [UserController::class, 'updatePassword']);
     Route::put('/user', [UserController::class, 'update']);
     Route::delete('/user', [UserController::class, 'destroy']);
 });

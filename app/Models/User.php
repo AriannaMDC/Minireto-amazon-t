@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\MetodePagament;
+use App\Models\Producte;
 
 class User extends Authenticatable
 {
@@ -42,4 +44,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function paymentMethods() {
+        return $this->hasMany(MetodePagament::class, 'usuari_id');
+    }
+
+    public function products() {
+        return $this->hasMany(Producte::class, 'vendedor_id');
+    }
 }

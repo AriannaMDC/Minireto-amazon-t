@@ -30,16 +30,25 @@ class CategoriaController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'img' => 'required|string',
+            'img' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $categoria = Categoria::create($request->all());
+        if ($request->hasFile('img')) {
+            $image = $request->file('img');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('images/categories'), $imageName);
 
-        if ($categoria) {
-            return response()->json($categoria, 200);
+            $categoria = Categoria::create([
+                'name' => $request->input('name'),
+                'img' => 'images/categories/' . $imageName,
+            ]);
+
+            if ($categoria) {
+                return response()->json($categoria, 200);
+            }
         }
 
-        return response()->json(['error' => 'Error al crear la categoria'], 505);
+        return response()->json(['error' => 'Error en crear la categoria'], 505);
     }
 
     /**
@@ -50,7 +59,7 @@ class CategoriaController extends Controller
         $categoria = Categoria::find($id);
 
         if (!$categoria) {
-            return response()->json(['error' => 'Categoria not found'], 404);
+            return response()->json(['error' => 'Categoria no trobada'], 404);
         }
 
         return response()->json($categoria, 200);
@@ -63,16 +72,31 @@ class CategoriaController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'img' => 'required|string',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $categoria = Categoria::find($id);
 
         if (!$categoria) {
-            return response()->json(['error' => 'Categoria not found'], 404);
+            return response()->json(['error' => 'Categoria no trobada'], 404);
         }
 
-        $categoria->update($request->all());
+        if ($request->hasFile('img')) {
+            // Delete the previous image
+            if ($categoria->img && file_exists(public_path($categoria->img))) {
+                unlink(public_path($categoria->img));
+            }
+
+            // Store the new image
+            $image = $request->file('img');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('images/categories'), $imageName);
+
+            $categoria->img = 'images/categories/' . $imageName;
+        }
+
+        $categoria->name = $request->input('name');
+        $categoria->save();
 
         return response()->json($categoria, 200);
     }
@@ -84,11 +108,16 @@ class CategoriaController extends Controller
         $categoria = Categoria::find($id);
 
         if (!$categoria) {
-            return response()->json(['error' => 'Categoria not found'], 404);
+            return response()->json(['error' => 'Categoria no trobada'], 404);
+        }
+
+        // Delete the associated image
+        if ($categoria->img && file_exists(public_path($categoria->img))) {
+            unlink(public_path($categoria->img));
         }
 
         $categoria->delete();
 
-        return response()->json(['message' => 'Categoria deleted'], 200);
+        return response()->json(['message' => 'Categoria eliminada'], 200);
     }
 }
