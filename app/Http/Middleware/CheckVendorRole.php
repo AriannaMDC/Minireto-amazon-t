@@ -18,6 +18,7 @@ class CheckVendorRole
     {
         $user = Auth::user();
 
+        // Nomes podran accedir els usuaris amb rol 'vendedor' o 'admin'
         if (!$user || ($user->rol !== 'vendedor' && $user->rol !== 'admin')) {
             return response()->json(['message' => 'No autoritzat', $user->rol], 403);
         }

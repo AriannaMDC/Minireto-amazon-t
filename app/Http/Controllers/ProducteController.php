@@ -13,11 +13,13 @@ class ProducteController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request) {
+        // Mostrar tots els productes o nomes les novetats (per la pagina inici)
         $destacat = $request->query('destacat');
 
-        if ($destacat === 'true') {
+        // Mostrar productes destacats
+        if($destacat === 'true') {
             $productes = Producte::with(['caracteristiques'])->where('destacat', true)->get();
-        } else {
+        } else { // Mostrar tots els productes
             $productes = Producte::with(['caracteristiques'])->get();
         }
 
@@ -49,13 +51,16 @@ class ProducteController extends Controller
             'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Afegir el id del usuari que ha iniciat sessio
         $validated['vendedor_id'] = Auth::user()->id;
 
+        // Crear el producte
         $producte = Producte::create($validated);
 
-        if (isset($validated['caracteristiques'])) {
+        // Crear les caracteristiques del producte
+        if(isset($validated['caracteristiques'])) {
             foreach ($validated['caracteristiques'] as $caracteristica) {
-                if (isset($caracteristica['img'])) {
+                if(isset($caracteristica['img'])) { // Guardar imatges
                     $imagePaths = [];
                     foreach ($caracteristica['img'] as $image) {
                         $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
@@ -64,15 +69,18 @@ class ProducteController extends Controller
                     }
                     $caracteristica['img'] = json_encode($imagePaths);
                 }
+                // Crear la caracteristica
                 $producte->caracteristiques()->create($caracteristica);
             }
         }
 
-        if ($producte) {
+        // Retornar el producte creat
+        if($producte) {
             return response()->json($producte->load('caracteristiques'), 200);
-        } else {
-            return response()->json(['error' => 'El producte no s\'ha pogut crear'], 500);
         }
+
+        // Retornar error si no s'ha pogut crear el producte
+        return response()->json(['error' => 'El producte no s\'ha pogut crear'], 500);
     }
 
     /**
@@ -80,13 +88,16 @@ class ProducteController extends Controller
      */
     public function show(string $id)
     {
+        // Buscar el producte per id
         $producte = Producte::with(['caracteristiques'])->find($id);
 
-        if ($producte) {
+        // Retornar el producte
+        if($producte) {
             return response()->json($producte, 200);
-        } else {
-            return response()->json(['error' => 'Producte no trobat'], 404);
         }
+
+        // Retornar error si no s'ha trobat el producte
+        return response()->json(['error' => 'Producte no trobat'], 404);
     }
 
     /**
@@ -115,18 +126,22 @@ class ProducteController extends Controller
             'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Buscar el producte per id
         $producte = Producte::with('caracteristiques')->find($id);
 
-        if ($producte) {
+        // Actualitzar el producte
+        if($producte) {
             $producte->update($validated);
 
-            if (isset($validated['caracteristiques'])) {
+            // Actualitzar les caracteristiques del producte
+            if(isset($validated['caracteristiques'])) {
+                // Eliminar les imatges antigues
                 foreach ($producte->caracteristiques as $caracteristica) {
-                    if (isset($caracteristica->img)) {
+                    if(isset($caracteristica->img)) {
                         $images = json_decode($caracteristica->img, true);
-                        if (is_array($images)) {
+                        if(is_array($images)) {
                             foreach ($images as $imagePath) {
-                                if (file_exists(public_path($imagePath))) {
+                                if(file_exists(public_path($imagePath))) {
                                     unlink(public_path($imagePath));
                                 }
                             }
@@ -134,8 +149,10 @@ class ProducteController extends Controller
                     }
                 }
                 $producte->caracteristiques()->delete();
+
+                // Crear les noves caracteristiques
                 foreach ($validated['caracteristiques'] as $caracteristica) {
-                    if (isset($caracteristica['img'])) {
+                    if(isset($caracteristica['img'])) {
                         $imagePaths = [];
                         foreach ($caracteristica['img'] as $image) {
                             $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
@@ -148,10 +165,12 @@ class ProducteController extends Controller
                 }
             }
 
+            // Retornar el producte actualitzat
             return response()->json($producte->load('caracteristiques'), 200);
-        } else {
-            return response()->json(['error' => 'Producte no trobat'], 404);
         }
+
+        // Retornar error si no s'ha trobat el producte
+        return response()->json(['error' => 'Producte no trobat'], 404);
     }
 
     /**
@@ -159,16 +178,18 @@ class ProducteController extends Controller
      */
     public function destroy(string $id)
     {
+        // Buscar el producte per id
         $producte = Producte::find($id);
 
-        if ($producte) {
-            // Delete associated images
+        // Eliminar el producte
+        if($producte) {
+            // Eliminar les imatges del producte
             foreach ($producte->caracteristiques as $caracteristica) {
-                if (isset($caracteristica->img)) {
+                if(isset($caracteristica->img)) {
                     $images = json_decode($caracteristica->img, true);
-                    if (is_array($images)) {
+                    if(is_array($images)) {
                         foreach ($images as $imagePath) {
-                            if (file_exists(public_path($imagePath))) {
+                            if(file_exists(public_path($imagePath))) {
                                 unlink(public_path($imagePath));
                             }
                         }
@@ -176,10 +197,13 @@ class ProducteController extends Controller
                 }
             }
 
+            // Eliminar el producte
             $producte->delete();
             return response()->json(['message' => 'Producte eliminat correctament'], 200);
-        } else {
-            return response()->json(['error' => 'Producte no trobat'], 404);
         }
+
+        // Retornar error si no s'ha trobat el producte
+        return response()->json(['error' => 'Producte no trobat'], 404);
     }
 }
+

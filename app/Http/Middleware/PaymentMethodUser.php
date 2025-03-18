@@ -18,21 +18,17 @@ class PaymentMethodUser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        $user = Auth::user();
 
+        // Els admin poden accedir a tots els metodes de pagament
         if ($user->rol === 'admin') {
             return $next($request);
         }
 
+        // Un usuari nomes podra accedir als seus propis metodes de pagament
         if ($request->route('id')) {
             $paymentMethod = MetodePagament::find($request->route('id'));
-            if (!$paymentMethod || $paymentMethod->user_id !== $user->id) {
-                return response()->json(['error' => 'No autoritzat'], 403);
-            }
-        }
-
-        if ($request->route('usuari_id')) {
-            if ($request->route('usuari_id') != $user->id) {
+            if (!$paymentMethod || $paymentMethod->usuari_id !== $user->id) {
                 return response()->json(['error' => 'No autoritzat'], 403);
             }
         }

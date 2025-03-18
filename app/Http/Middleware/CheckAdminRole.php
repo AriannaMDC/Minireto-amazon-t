@@ -18,7 +18,8 @@ class CheckAdminRole
     {
         $user = Auth::user();
 
-        if (!$user || $user->rol !== 'admin') {
+        // Nomes podran accedir els usuaris amb rol 'admin'
+        if(!$user || $user->rol !== 'admin') {
             return response()->json(['message' => 'No autoritzat', $user], 403);
         }
 

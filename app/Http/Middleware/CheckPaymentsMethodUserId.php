@@ -20,6 +20,7 @@ class CheckPaymentsMethodUserId
         $user = Auth::user();
         $userIdRoute = $request->route('id');
 
+        // Un usuario nomes podra accedir als seus propis metodes de pagament
         if (!$userIdRoute || $user->id != $userIdRoute) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }

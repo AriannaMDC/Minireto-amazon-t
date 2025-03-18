@@ -15,6 +15,7 @@ class UserController extends Controller
      */
     public function index()
     {
+        // Mostrar tots els usuaris
         $users = User::all();
         return response()->json($users, 200);
     }
@@ -33,18 +34,21 @@ class UserController extends Controller
             'rol' => 'required|in:client,vendedor,admin',
         ]);
 
+        // Crear un nou usuari
         $user = new User();
         $user->usuari = $request->usuari;
         $user->nom = $request->nom;
         $user->email = $request->email;
-        $user->password = Hash::make($request->password);
+        $user->password = Hash::make($request->password); // Encriptar la contrasenya
         $user->rol = $request->rol;
-        $user->img = 'images/users/default.png';
+        $user->img = 'images/users/default.png'; // Imatge per defecte
 
+        // Guardar el usuari
         if($user->save()) {
             return response()->json($user, 200);
         }
 
+        // Retornar error si no s'ha pogut crear l'usuari
         return response()->json(['error' => 'Error en crear l\'usuari'], 500);
     }
 
@@ -55,19 +59,24 @@ class UserController extends Controller
             'password' => 'required|string',
         ]);
 
+        // Comprovar que l'usuari existeix
         $user = User::where('usuari', $request->usuari)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        // Comprovar que la contrasenya és correcta
+        if(!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['error' => 'Credencials no vàlides'], 401);
         }
 
+        // Crear token d'autenticació
         $token = $user->createToken('authToken')->plainTextToken;
 
+        // Retornar l'usuari i el token
         return response()->json(['user' => $user, 'token' => $token], 200);
     }
 
     public function logout(Request $request)
     {
+        // Tancar la sessió de l'usuari
         $request->user()->tokens->each(function ($token) {
             $token->delete();
         });
@@ -80,30 +89,92 @@ class UserController extends Controller
      */
     public function show()
     {
+        // Obtenir l'usuari autenticat
         $user = Auth::user();
 
-        if ($user) {
+        // Mostrar el usuari
+        if($user) {
             return response()->json($user, 200);
         }
 
+        // Retornar error si no s'ha trobat l'usuari
         return response()->json(['error' => 'Usuari no trobat'], 404);
     }
 
     public function getUserByUsername(Request $request)
     {
+        // Obtenir el nom d'usuari de la URL
         $username = $request->query('username');
 
-        if (!$username) {
+        // Comprovar que s'ha enviat el nom d'usuari
+        if(!$username) {
             return response()->json(['error' => 'El nom d\'usuari és obligatori'], 400);
         }
 
+        // Buscar l'usuari per nom d'usuari
         $user = User::where('usuari', $username)->first();
 
+        // Mostrar l'usuari
         if($user) {
             return response()->json($user, 200);
         }
 
+        // Retornar error si no s'ha trobat l'usuari
         return response()->json(['error' => 'Usuari no trobat'], 404);
+    }
+
+    public function adminUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'usuari' => 'required|unique:users,usuari,' . $id,
+            'nom' => 'required|string',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'required|min:8|confirmed',
+            'password_confirmation' => 'required|same:password',
+            'rol' => 'required|in:client,vendedor,admin',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'direccio' => 'nullable|string',
+        ]);
+
+        // Buscar l'usuari per id
+        $user = User::find($id);
+
+        // Retornar error si no s'ha trobat l'usuari
+        if(!$user) {
+            return response()->json(['error' => 'Usuari no trobat'], 404);
+        }
+
+        // Actualitzar l'usuari
+        $user->usuari = $request->usuari;
+        $user->nom = $request->nom;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->rol = $request->rol;
+
+        // Actualitzar la direccio si s'ha enviat
+        if($request->has('direccio')) {
+            $user->direccio = $request->direccio;
+        }
+
+        // Actualitzar la imatge si s'ha enviat
+        if($request->hasFile('img')) {
+            // Eliminar la imatge anterior
+            if($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
+                unlink(public_path($user->img));
+            }
+
+            $imagePath = 'images/users/' . Str::random(32) . '.' . $request->file('img')->getClientOriginalExtension();
+            $request->file('img')->move(public_path('images/users'), $imagePath);
+            $user->img = $imagePath;
+        }
+
+        // Guardar l'usuari
+        if($user->save()) {
+            return response()->json(['message' => 'Usuari actualitzat correctament', $user], 200);
+        }
+
+        // Retornar error si no s'ha pogut actualitzar l'usuari
+        return response()->json(['error' => 'Error en actualitzar l\'usuari'], 500);
     }
 
     /**
@@ -118,17 +189,26 @@ class UserController extends Controller
             'direccio' => 'nullable|string',
         ]);
 
+        // Obtenir l'usuari autenticat
         $user = User::find(Auth::user()->id);
 
-        if (!$user) {
+        // Retornar error si no s'ha trobat l'usuari
+        if(!$user) {
             return response()->json(['error' => 'Usuari no trobat'], 404);
         }
 
+        // Actualitzar la contrasenya del usuari
         $user->password = Hash::make($request->password);
-        $user->direccio = $request->direccio;
 
-        if ($request->hasFile('img')) {
-            if ($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
+        // Actualitzar la direccio si s'ha enviat
+        if($request->has('direccio')) {
+            $user->direccio = $request->direccio;
+        }
+
+        // Actualitzar la imatge del usuari si s'ha enviat
+        if($request->hasFile('img')) {
+            // Eliminar la imatge anterior
+            if($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
                 unlink(public_path($user->img));
             }
 
@@ -137,10 +217,12 @@ class UserController extends Controller
             $user->img = $imagePath;
         }
 
-        if ($user->save()) {
+        // Guardar l'usuari
+        if($user->save()) {
             return response()->json(['message' => 'Usuari actualitzat correctament', $user], 200);
         }
 
+        // Retornar error si no s'ha pogut actualitzar l'usuari
         return response()->json(['error' => 'Error en actualitzar l\'usuari'], 500);
     }
 
@@ -149,9 +231,11 @@ class UserController extends Controller
      */
     public function updatePassword(Request $request)
     {
+        // Obtenir l'email de la URL
         $email = $request->query('email');
 
-        if (!$email) {
+        // Comprovar que s'ha enviat l'email
+        if(!$email) {
             return response()->json(['error' => 'El correu electrònic és obligatori'], 400);
         }
 
@@ -160,14 +244,17 @@ class UserController extends Controller
             'new_password_confirmation' => 'required',
         ]);
 
+        // Buscar l'usuari per email
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
+        // Retornar error si no s'ha trobat l'usuari
+        if(!$user) {
             return response()->json(['error' => 'Usuari no trobat'], 404);
         }
 
+        // Actualitzar la contrasenya de l'usuari
         $user->password = Hash::make($request->new_password);
-        if ($user->save()) {
+        if($user->save()) {
             return response()->json(['message' => 'Contrasenya actualitzada correctament'], 200);
         }
 
@@ -179,20 +266,49 @@ class UserController extends Controller
      */
     public function destroy()
     {
+        // Obtenir l'usuari autenticat
         $user = User::find(Auth::user()->id);
 
-        if (!$user) {
+        // Retornar error si no s'ha trobat l'usuari
+        if(!$user) {
             return response()->json(['error' => 'Usuari no trobat'], 404);
         }
 
-        if ($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
+        // Eliminar la imatge del usuari
+        if($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
             unlink(public_path($user->img));
         }
 
-        if ($user->delete()) {
+        // Eliminar l'usuari
+        if($user->delete()) {
             return response()->json(['message' => 'Usuari eliminat correctament'], 200);
         }
 
+        // Retornar error si no s'ha pogut eliminar l'usuari
+        return response()->json(['error' => 'Error en eliminar l\'usuari'], 500);
+    }
+
+    public function adminDestroy($id)
+    {
+        // Buscar l'usuari per id
+        $user = User::find($id);
+
+        // Retornar error si no s'ha trobat l'usuari
+        if(!$user) {
+            return response()->json(['error' => 'Usuari no trobat'], 404);
+        }
+
+        // Eliminar la imatge de l'usuari
+        if($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
+            unlink(public_path($user->img));
+        }
+
+        // Eliminar l'usuari
+        if($user->delete()) {
+            return response()->json(['message' => 'Usuari eliminat correctament'], 200);
+        }
+
+        // Retornar error si no s'ha pogut eliminar l'usuari
         return response()->json(['error' => 'Error en eliminar l\'usuari'], 500);
     }
 }

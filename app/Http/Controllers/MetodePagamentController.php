@@ -21,8 +21,10 @@ class MetodePagamentController extends Controller
             'cvv' => 'required|digits:3',
         ]);
 
+        // Afegir el id del usuari que ha iniciat sessio
         $validated['usuari_id'] = Auth::user()->id;
 
+        // Crear el mètode de pagament
         $metodePagament = MetodePagament::create($validated);
 
         return response()->json($metodePagament, 200);
@@ -33,9 +35,11 @@ class MetodePagamentController extends Controller
      */
     public function show(string $id)
     {
+        // Buscar el mètode de pagament per id
         $metodePagament = MetodePagament::find($id);
 
-        if (!$metodePagament) {
+        // Retornar error si no s'ha trobat el mètode de pagament
+        if(!$metodePagament) {
             return response()->json(['message' => 'Mètode de pagament no trobat'], 404);
         }
 
@@ -45,13 +49,11 @@ class MetodePagamentController extends Controller
     /**
      * Display the specified resource by user ID.
      */
-    public function getByUserId(string $usuari_id)
+    public function getByUserId()
     {
+        // Buscar el mètode de pagament per el id del usuari autenticat
+        $usuari_id = Auth::user()->id;
         $metodesPagament = MetodePagament::where('usuari_id', $usuari_id)->get();
-
-        if ($metodesPagament->isEmpty()) {
-            return response()->json(['message' => 'No s\'ha trobat cap mètode de pagament per aquest usuari'], 404);
-        }
 
         return response()->json($metodesPagament, 200);
     }
@@ -69,12 +71,15 @@ class MetodePagamentController extends Controller
             'cvv' => 'required|digits:3'
         ]);
 
+        // Buscar el mètode de pagament per id
         $metodePagament = MetodePagament::find($id);
 
-        if (!$metodePagament) {
+        // Retornar error si no s'ha trobat el mètode de pagament
+        if(!$metodePagament) {
             return response()->json(['message' => 'Mètode de pagament no trobat'], 404);
         }
 
+        // Actualitzar el mètode de pagament
         $metodePagament->update($validated);
 
         return response()->json($metodePagament, 200);
@@ -85,12 +90,15 @@ class MetodePagamentController extends Controller
      */
     public function destroy(string $id)
     {
+        // Buscar el mètode de pagament per id
         $metodePagament = MetodePagament::find($id);
 
-        if (!$metodePagament) {
+        // Retornar error si no s'ha trobat el mètode de pagament
+        if(!$metodePagament) {
             return response()->json(['message' => 'Mètode de pagament no trobat'], 404);
         }
 
+        // Eliminar el mètode de pagament
         $metodePagament->delete();
 
         return response()->json(['message' => 'Mètode de pagament eliminat correctament'], 200);

@@ -21,14 +21,17 @@ class CheckProductUserId
         $productId = $request->route('id');
         $product = Producte::find($productId);
 
+        // Els admin podem accedir a tots els productes
         if($user->rol === 'admin') {
             return $next($request);
         }
 
+        // Si el producte no existeix
         if(!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
 
+        // Un vendedor nomes podra accedir als seus propis productes
         if(!$user || $user->rol !== 'vendedor' || $product->vendedor_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized', $user->rol], 403);
         }

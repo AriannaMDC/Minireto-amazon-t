@@ -13,11 +13,13 @@ class CategoriaController extends Controller
      */
     public function index(Request $request)
     {
+        // Mostrar totes les categories o nomes les novetats (per la pagina inici)
         $destacat = $request->query('destacat');
 
-        if ($destacat === 'true') {
+        // Mostrar categories destacades
+        if($destacat === 'true') {
             $categories = Categoria::where('destacat', true)->get();
-        } else {
+        } else { // Mostrar totes les categories
             $categories = Categoria::all();
         }
 
@@ -34,21 +36,25 @@ class CategoriaController extends Controller
             'img' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        if ($request->hasFile('img')) {
+        if($request->hasFile('img')) { // Comprovar que s'ha enviat una imatge
+            // Guardar la imatge a public/images/categories
             $image = $request->file('img');
             $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/categories'), $imageName);
 
+            // Crear la categoria amb la imatge
             $categoria = Categoria::create([
                 'name' => $request->input('name'),
                 'img' => 'images/categories/' . $imageName,
             ]);
 
-            if ($categoria) {
+            // Retornar la categoria creada
+            if($categoria) {
                 return response()->json($categoria, 200);
             }
         }
 
+        // Retornar error si no s'ha pogut crear la categoria
         return response()->json(['error' => 'Error en crear la categoria'], 505);
     }
 
@@ -57,9 +63,11 @@ class CategoriaController extends Controller
      */
     public function show(string $id)
     {
+        // Buscar la categoria per id
         $categoria = Categoria::find($id);
 
-        if (!$categoria) {
+        // Si no existeix la categoria retornar error
+        if(!$categoria) {
             return response()->json(['error' => 'Categoria no trobada'], 404);
         }
 
@@ -76,19 +84,22 @@ class CategoriaController extends Controller
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Buscar la categoria per id
         $categoria = Categoria::find($id);
 
-        if (!$categoria) {
+        // Si no existeix la categoria retornar error
+        if(!$categoria) {
             return response()->json(['error' => 'Categoria no trobada'], 404);
         }
 
-        if ($request->hasFile('img')) {
-            // Delete the previous image
-            if ($categoria->img && file_exists(public_path($categoria->img))) {
+        // Actualitzar la imatge si s'ha enviat una nova
+        if($request->hasFile('img')) {
+            // Eliminar la imatge anterior
+            if($categoria->img && file_exists(public_path($categoria->img))) {
                 unlink(public_path($categoria->img));
             }
 
-            // Store the new image with a random name
+            // Guardar la nova imatge
             $image = $request->file('img');
             $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/categories'), $imageName);
@@ -96,6 +107,7 @@ class CategoriaController extends Controller
             $categoria->img = 'images/categories/' . $imageName;
         }
 
+        // Actualitzar la categoria
         $categoria->name = $request->input('name');
         $categoria->save();
 
@@ -106,17 +118,20 @@ class CategoriaController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(string $id) {
+        // Buscar la categoria per id
         $categoria = Categoria::find($id);
 
-        if (!$categoria) {
+        // Si no existeix la categoria retornar error
+        if(!$categoria) {
             return response()->json(['error' => 'Categoria no trobada'], 404);
         }
 
-        // Delete the associated image
-        if ($categoria->img && file_exists(public_path($categoria->img))) {
+        // Eliminar la imatge de la categoria
+        if($categoria->img && file_exists(public_path($categoria->img))) {
             unlink(public_path($categoria->img));
         }
 
+        // Eliminar la categoria
         $categoria->delete();
 
         return response()->json(['message' => 'Categoria eliminada'], 200);
