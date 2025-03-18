@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\MetodePagament;
+use Illuminate\Support\Facades\Auth;
 
 class MetodePagamentController extends Controller
 {
@@ -20,7 +21,7 @@ class MetodePagamentController extends Controller
             'cvv' => 'required|digits:3',
         ]);
 
-        $validated['usuari_id'] = $request->input('usuari_id');
+        $validated['usuari_id'] = Auth::user()->id;
 
         $metodePagament = MetodePagament::create($validated);
 

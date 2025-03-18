@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Categoria;
+use Illuminate\Support\Str;
 
 class CategoriaController extends Controller
 {
@@ -35,7 +36,7 @@ class CategoriaController extends Controller
 
         if ($request->hasFile('img')) {
             $image = $request->file('img');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/categories'), $imageName);
 
             $categoria = Categoria::create([
@@ -87,9 +88,9 @@ class CategoriaController extends Controller
                 unlink(public_path($categoria->img));
             }
 
-            // Store the new image
+            // Store the new image with a random name
             $image = $request->file('img');
-            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/categories'), $imageName);
 
             $categoria->img = 'images/categories/' . $imageName;

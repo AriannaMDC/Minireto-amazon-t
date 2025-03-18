@@ -16,9 +16,9 @@ class ProducteController extends Controller
         $destacat = $request->query('destacat');
 
         if ($destacat === 'true') {
-            $productes = Producte::with(['categoria', 'caracteristiques'])->where('destacat', true)->get();
+            $productes = Producte::with(['caracteristiques'])->where('destacat', true)->get();
         } else {
-            $productes = Producte::with(['categoria', 'caracteristiques'])->get();
+            $productes = Producte::with(['caracteristiques'])->get();
         }
 
         return response()->json($productes, 200);
@@ -80,7 +80,7 @@ class ProducteController extends Controller
      */
     public function show(string $id)
     {
-        $producte = Producte::with(['categoria', 'caracteristiques'])->find($id);
+        $producte = Producte::with(['caracteristiques'])->find($id);
 
         if ($producte) {
             return response()->json($producte, 200);

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('img')->nullable();
-            $table->enum('rol', ['client', 'vendedor'])->default('client');
+            $table->enum('rol', ['client', 'vendedor', 'admin'])->default('client');
             $table->string('direccio')->nullable();
             $table->rememberToken();
             $table->timestamps();

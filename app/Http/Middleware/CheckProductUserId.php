@@ -21,12 +21,16 @@ class CheckProductUserId
         $productId = $request->route('id');
         $product = Producte::find($productId);
 
+        if($user->rol === 'admin') {
+            return $next($request);
+        }
+
         if(!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
 
         if(!$user || $user->rol !== 'vendedor' || $product->vendedor_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => 'Unauthorized', $user->rol], 403);
         }
 
         return $next($request);

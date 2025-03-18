@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-class CheckVendorRole
+class CheckAdminRole
 {
     /**
      * Handle an incoming request.
@@ -18,8 +18,8 @@ class CheckVendorRole
     {
         $user = Auth::user();
 
-        if (!$user || ($user->rol !== 'vendedor' && $user->rol !== 'admin')) {
-            return response()->json(['message' => 'No autoritzat', $user->rol], 403);
+        if (!$user || $user->rol !== 'admin') {
+            return response()->json(['message' => 'No autoritzat', $user], 403);
         }
 
         return $next($request);

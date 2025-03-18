@@ -11,6 +11,15 @@ use Illuminate\Support\Str;
 class UserController extends Controller
 {
     /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $users = User::all();
+        return response()->json($users, 200);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function register(Request $request)
@@ -21,7 +30,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'password_confirmation' => 'required',
-            'rol' => 'required|in:client,vendedor',
+            'rol' => 'required|in:client,vendedor,admin',
         ]);
 
         $user = new User();
@@ -69,11 +78,11 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show()
     {
-        $user = User::find($id);
+        $user = Auth::user();
 
-        if($user) {
+        if ($user) {
             return response()->json($user, 200);
         }
 
