@@ -40,7 +40,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Productes
 Route::get('/products', [ProducteController::class, 'index']);
-Route::get('/products/{id}', [ProducteController::class, 'show']);
+Route::get('/products/id/{id}', [ProducteController::class, 'show']);
+Route::get('/products/category/{id}', [ProducteController::class, 'getByCategoryID']);
+Route::get('/products/text', [ProducteController::class, 'getByText']);
 
 Route::middleware('auth:sanctum', 'checkVendorRole')->group(function () {
     Route::post('/products', [ProducteController::class, 'store']);
@@ -50,9 +52,9 @@ Route::middleware('auth:sanctum', 'checkVendorRole')->group(function () {
 
 // Categories
 Route::get('/categories', [CategoriaController::class, 'index']);
+Route::get('/categories/{id}', [CategoriaController::class, 'show']);
 
 Route::middleware(['auth:sanctum', 'checkAdminRole'])->group(function () {
-    Route::get('/categories/{id}', [CategoriaController::class, 'show']);
     Route::post('/categories', [CategoriaController::class, 'store']);
     Route::put('/categories/{id}', [CategoriaController::class, 'update']);
     Route::delete('/categories/{id}', [CategoriaController::class, 'destroy']);

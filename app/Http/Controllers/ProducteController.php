@@ -44,10 +44,10 @@ class ProducteController extends Controller
             'stock' => 'required|integer|min:0',
             'categoria_id' => 'required|exists:categories,id',
             'destacat' => 'nullable|boolean',
-            'caracteristiques' => 'nullable|array',
+            'caracteristiques' => 'required|array',
             'caracteristiques.*.nom' => 'required',
             'caracteristiques.*.propietats' => 'required|json',
-            'caracteristiques.*.img' => 'nullable|array',
+            'caracteristiques.*.img' => 'required|array',
             'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -205,5 +205,45 @@ class ProducteController extends Controller
         // Retornar error si no s'ha trobat el producte
         return response()->json(['error' => 'Producte no trobat'], 404);
     }
-}
 
+    /**
+     * Get products by categoria_id.
+     */
+    public function getByCategoryID(string $categoria_id)
+    {
+        // Buscar productes per categoria_id
+        $productes = Producte::with(['caracteristiques'])->where('categoria_id', $categoria_id)->get();
+
+        // Retornar els productes
+        if ($productes) {
+            return response()->json($productes, 200);
+        }
+
+        // Retornar error si no s'han trobat productes
+        return response()->json(['error' => 'No s\'han trobat productes per aquesta categoria'], 404);
+    }
+
+    /**
+     * Get products by text in their name.
+     */
+    public function getByText(Request $request)
+    {
+        $text = $request->query('text');
+
+        // Validar que el text no sigui buit
+        if (!$text) {
+            return response()->json(['error' => 'El text és requerit'], 400);
+        }
+
+        // Buscar productes que continguin el text al nom
+        $productes = Producte::with(['caracteristiques'])->where('nom', 'like', '%' . $text . '%')->get();
+
+        // Retornar els productes
+        if ($productes) {
+            return response()->json($productes, 200);
+        }
+
+        // Retornar error si no s'han trobat productes
+        return response()->json(['error' => 'No s\'han trobat productes amb aquest text'], 404);
+    }
+}

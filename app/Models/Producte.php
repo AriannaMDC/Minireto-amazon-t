@@ -41,4 +41,8 @@ class Producte extends Model
     public function vendedor() {
         return $this->belongsTo(User::class, 'vendedor_id');
     }
+
+    public function opiniones() {
+        return $this->hasMany(Opinion::class);
+    }
 }
