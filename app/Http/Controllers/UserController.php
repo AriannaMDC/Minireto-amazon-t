@@ -75,12 +75,12 @@ class UserController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'usuari' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
         // Comprovar que l'usuari existeix
-        $user = User::where('usuari', $request->usuari)->first();
+        $user = User::where('email', $request->email)->first();
 
         // Comprovar que la contrasenya és correcta
         if(!$user || !Hash::check($request->password, $user->password)) {
