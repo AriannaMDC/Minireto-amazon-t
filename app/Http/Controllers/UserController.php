@@ -20,6 +20,25 @@ class UserController extends Controller
         return response()->json($users, 200);
     }
 
+    public function checkUserExists(Request $request) {
+        $usuari = $request->query('usuari');
+        $email = $request->query('email');
+
+        // Validar que els paràmetres de consulta existeixen
+        if (!$usuari || !$email) {
+            return response()->json(['error' => 'Els paràmetres usuari i email són obligatoris'], 400);
+        }
+
+        // Comprovar si l'usuari existeix per nom d'usuari i email
+        $user = User::where('usuari', $usuari)->where('email', $email)->first();
+
+        if($user) {
+            return response()->json(true, 404);
+        }
+
+        return response()->json(false, 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -30,7 +49,7 @@ class UserController extends Controller
             'nom' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
-            'password_confirmation' => 'required',
+            'password_confirmation' => 'required|same:password',
             'rol' => 'required|in:client,vendedor,admin',
         ]);
 
@@ -42,6 +61,7 @@ class UserController extends Controller
         $user->password = Hash::make($request->password); // Encriptar la contrasenya
         $user->rol = $request->rol;
         $user->img = 'images/users/default.png'; // Imatge per defecte
+        $user->password_confirmation = Hash::make($request->password_confirmation); // Encriptar la confirmació de contrasenya
 
         // Guardar el usuari
         if($user->save()) {
@@ -149,6 +169,7 @@ class UserController extends Controller
         $user->nom = $request->nom;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
+        $user->password_confirmation = Hash::make($request->password_confirmation); // Add password confirmation
         $user->rol = $request->rol;
 
         // Actualitzar la direccio si s'ha enviat
@@ -198,7 +219,10 @@ class UserController extends Controller
         }
 
         // Actualitzar la contrasenya del usuari
-        $user->password = Hash::make($request->password);
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+            $user->password_confirmation = Hash::make($request->password_confirmation); // Add password confirmation
+        }
 
         // Actualitzar la direccio si s'ha enviat
         if($request->has('direccio')) {
@@ -231,6 +255,11 @@ class UserController extends Controller
      */
     public function updatePassword(Request $request)
     {
+        $request->validate([
+            'new_password' => 'required|min:8|confirmed',
+            'new_password_confirmation' => 'required|same:new_password',
+        ]);
+
         // Obtenir l'email de la URL
         $email = $request->query('email');
 
@@ -238,11 +267,6 @@ class UserController extends Controller
         if(!$email) {
             return response()->json(['error' => 'El correu electrònic és obligatori'], 400);
         }
-
-        $request->validate([
-            'new_password' => 'required|min:8|confirmed',
-            'new_password_confirmation' => 'required',
-        ]);
 
         // Buscar l'usuari per email
         $user = User::where('email', $email)->first();
@@ -254,6 +278,7 @@ class UserController extends Controller
 
         // Actualitzar la contrasenya de l'usuari
         $user->password = Hash::make($request->new_password);
+        $user->password_confirmation = Hash::make($request->new_password_confirmation); // Add password confirmation
         if($user->save()) {
             return response()->json(['message' => 'Contrasenya actualitzada correctament'], 200);
         }

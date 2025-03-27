@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Usuaris
+Route::get('/user/exists', [UserController::class, 'checkUserExists']);
 Route::post('/user/login', [UserController::class, 'login']);
 Route::post('/user/register', [UserController::class, 'register']);
 Route::put('/user/update-password', [UserController::class, 'updatePassword']);
@@ -40,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Productes
 Route::get('/products', [ProducteController::class, 'index']);
-Route::get('/products/id/{id}', [ProducteController::class, 'show']);
+Route::get('/products/show/{id}', [ProducteController::class, 'show']);
 Route::get('/products/category/{id}', [ProducteController::class, 'getByCategoryID']);
 Route::get('/products/text', [ProducteController::class, 'getByText']);
 

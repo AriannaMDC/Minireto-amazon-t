@@ -18,9 +18,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('password_confirmation');
             $table->string('img')->nullable();
             $table->enum('rol', ['client', 'vendedor', 'admin'])->default('client');
             $table->string('direccio')->nullable();
+            $table->boolean('receive_info')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
