@@ -41,7 +41,6 @@ class ProducteController extends Controller
             'dies' => 'required|integer|min:0',
             'devolucio' => 'required|boolean',
             'devolucioGratis' => 'required|boolean',
-            'stock' => 'required|integer|min:0',
             'categoria_id' => 'required|exists:categories,id',
             'destacat' => 'nullable|boolean',
             'caracteristiques' => 'required|array',
@@ -49,6 +48,7 @@ class ProducteController extends Controller
             'caracteristiques.*.propietats' => 'required|json',
             'caracteristiques.*.img' => 'required|array',
             'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'caracteristiques.*.stock' => 'required|integer|min:0',
         ]);
 
         // Afegir el id del usuari que ha iniciat sessio
@@ -115,7 +115,6 @@ class ProducteController extends Controller
             'dies' => 'required|integer|min:0',
             'devolucio' => 'required|boolean',
             'devolucioGratis' => 'required|boolean',
-            'stock' => 'required|integer|min:0',
             'oferta' => 'nullable|integer|min:0',
             'categoria_id' => 'required|exists:categories,id',
             'destacat' => 'nullable|boolean',
@@ -124,6 +123,7 @@ class ProducteController extends Controller
             'caracteristiques.*.propietats' => 'required|json',
             'caracteristiques.*.img' => 'nullable|array',
             'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'caracteristiques.*.stock' => 'required|integer|min:0',
         ]);
 
         // Buscar el producte per id

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Valoracio;
 
 class ValoracioController extends Controller
 {
@@ -14,12 +15,15 @@ class ValoracioController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function getValoracioByProductId(string $productId)
     {
-        //
+        $valoracio = Valoracio::where('producte_id', $productId)->first();
+
+        if (!$valoracio) {
+            return response()->json(['error' => 'No s\'ha trobat la valoració'], 404);
+        }
+
+        return response()->json($valoracio);
     }
 
     /**
@@ -34,14 +38,6 @@ class ValoracioController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
     {
         //
     }

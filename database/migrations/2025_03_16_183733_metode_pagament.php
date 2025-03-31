@@ -18,8 +18,9 @@ return new class extends Migration
             $table->string('numero');
             $table->string('caducitat');
             $table->string('cvv');
-            $table->foreignId('usuari_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
+
+            $table->foreignId('usuari_id')->constrained('users')->onDelete('cascade');
         });
     }
 

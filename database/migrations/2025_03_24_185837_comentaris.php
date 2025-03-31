@@ -13,16 +13,15 @@ return new class extends Migration
     {
         Schema::create('comentaris', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->tinyInteger('valoracio');
-            $table->text('text');
-            $table->json('img')->nullable();
-            $table->timestamp('date')->useCurrent();
+            $table->integer('valoracio');
+            $table->text('comentari');
+            $table->json('imatges')->nullable();
+            $table->timestamp('created_at')->useCurrent();
             $table->integer('util')->default(0);
             $table->string('model');
 
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('producto_id')->constrained('productes')->onDelete('cascade');
+            $table->foreignId('usuari_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('producte_id')->constrained('productes')->onDelete('cascade');
         });
     }
 

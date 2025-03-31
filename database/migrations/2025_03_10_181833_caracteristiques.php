@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('nom');
             $table->json('propietats');
             $table->json('img');
-            $table->foreignId('producte_id')->constrained('productes')->onDelete('cascade');
+            $table->string('stock')->default('0');
             $table->timestamps();
+
+            $table->foreignId('producte_id')->constrained('productes')->onDelete('cascade');
         });
     }
 
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('caracteristiques'); // Ensure the table is dropped
     }
 };

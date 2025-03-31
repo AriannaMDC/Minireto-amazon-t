@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'checkVendorRole' => \App\Http\Middleware\CheckVendorRole::class,
         'checkProductUserId' => \App\Http\Middleware\CheckProductUserId::class,
         'paymentMethodUser' => \App\Http\Middleware\PaymentMethodUser::class,
+        'checkCommentUesrId' => \App\Http\Middleware\CheckCommentUesrId::class,
     ];
 }

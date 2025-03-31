@@ -4,27 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Producte;
+use App\Models\User;
 
 class Comentari extends Model
 {
     use HasFactory;
 
+    protected $table = 'comentaris';
+
     protected $fillable = [
-        'user_id',
-        'producto_id',
         'valoracio',
-        'text',
-        'img',
-        'date',
+        'comentari',
+        'imatges',
+        'created_at',
         'util',
         'model',
+        'usuari_id',
+        'producte_id'
     ];
 
-    public function usuario() {
-        return $this->belongsTo(User::class, 'user_id');
+    public function producte()
+    {
+        return $this->belongsTo(Producte::class, 'producte_id');
     }
 
-    public function producto() {
-        return $this->belongsTo(Producto::class, 'producto_id');
+    public function usuari()
+    {
+        return $this->belongsTo(User::class, 'usuari_id');
     }
 }

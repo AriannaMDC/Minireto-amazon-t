@@ -6,6 +6,8 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProducteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MetodePagamentController;
+use App\Http\Controllers\ComentariController;
+use App\Http\Controllers\ValoracioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,3 +71,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/metode_pagament/{id}', [MetodePagamentController::class, 'update'])->middleware('paymentMethodUser');
     Route::delete('/metode_pagament/{id}', [MetodePagamentController::class, 'destroy'])->middleware('paymentMethodUser');
 });
+
+// Comentaris
+Route::get('/comentaris/product/{productId}', [ComentariController::class, 'getAllByProductId']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/comentaris', [ComentariController::class, 'store']);
+    Route::put('/comentaris/{id}', [ComentariController::class, 'update'])->middleware('checkCommentUesrId');
+    Route::put('/comentaris/{id}/increment-util', [ComentariController::class, 'incrementUtil']);
+    Route::delete('/comentaris/{id}', [ComentariController::class, 'destroy'])->middleware('checkCommentUesrId');
+});
+
+// Valoracions
+Route::get('/valoracions/product/{productId}', [ValoracioController::class, 'getValoracioByProductId']);
+

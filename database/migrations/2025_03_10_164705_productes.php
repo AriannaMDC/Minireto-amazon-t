@@ -23,12 +23,12 @@ return new class extends Migration
             $table->boolean('devolucio')->default(false);
             $table->boolean('devolucioGratis')->default(false);
             $table->timestamp('dataAfegit')->useCurrent();
-            $table->integer('stock')->default(0);
-            $table->foreignId('categoria_id')->constrained('categories')->onDelete('cascade');
             $table->integer('oferta')->default(0);
             $table->boolean('destacat')->default(false);
-            $table->foreignId('vendedor_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
+
+            $table->foreignId('categoria_id')->constrained('categories')->onDelete('cascade');
+            $table->foreignId('vendedor_id')->constrained('users')->onDelete('cascade');
         });
     }
 
