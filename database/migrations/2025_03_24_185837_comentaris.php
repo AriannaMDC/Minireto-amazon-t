@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->integer('util')->default(0);
             $table->string('model');
+            $table->timestamps();
 
             $table->foreignId('usuari_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('producte_id')->constrained('productes')->onDelete('cascade');
