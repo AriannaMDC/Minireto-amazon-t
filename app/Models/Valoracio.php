@@ -20,6 +20,7 @@ class Valoracio extends Model
         'total_3_estrelles',
         'total_2_estrelles',
         'total_1_estrelles',
+        'producte_id',
     ];
 
     public function producte()

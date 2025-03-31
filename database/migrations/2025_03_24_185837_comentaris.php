@@ -16,7 +16,6 @@ return new class extends Migration
             $table->integer('valoracio');
             $table->text('comentari');
             $table->json('imatges')->nullable();
-            $table->timestamp('created_at')->useCurrent();
             $table->integer('util')->default(0);
             $table->string('model');
             $table->timestamps();

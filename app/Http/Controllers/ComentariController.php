@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Comentari;
 use App\Models\Valoracio;
 use App\Models\Caracteristica;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ComentariController extends Controller
 {
@@ -51,8 +51,9 @@ class ComentariController extends Controller
         $imatgesPaths = [];
         if ($request->has('imatges')) {
             foreach ($request->file('imatges') as $imatge) {
-                $path = $imatge->store('public/images/comments');
-                $imatgesPaths[] = $path;
+                $imageName = Str::random(32) . '.' . $imatge->getClientOriginalExtension();
+                $imatge->move(public_path('images/comments'), $imageName);
+                $imatgesPaths[] = 'images/comments/' . $imageName;
             }
         }
 
@@ -68,6 +69,7 @@ class ComentariController extends Controller
             $valoracio = Valoracio::firstOrNew(['producte_id' => $request->producte_id]);
             $valoracio->mitja_valoracions = Comentari::where('producte_id', $request->producte_id)->avg('valoracio');
             $valoracio->{'total_' . $request->valoracio . '_estrelles'} += 1;
+            $valoracio->total_comentaris += 1;
 
             if ($valoracio->save()) {
                 return response()->json($comentari, 201);
@@ -102,8 +104,8 @@ class ComentariController extends Controller
         if ($comentari->imatges) {
             $oldImages = json_decode($comentari->imatges, true);
             foreach ($oldImages as $oldImage) {
-                if (file_exists(public_path(str_replace('public/', '', $oldImage)))) {
-                    unlink(public_path(str_replace('public/', '', $oldImage)));
+                if (file_exists(public_path($oldImage))) {
+                    unlink(public_path($oldImage));
                 }
             }
         }
@@ -111,8 +113,9 @@ class ComentariController extends Controller
         $imatgesPaths = [];
         if ($request->has('imatges')) {
             foreach ($request->file('imatges') as $imatge) {
-                $path = $imatge->store('public/images/comments');
-                $imatgesPaths[] = $path;
+                $imageName = Str::random(32) . '.' . $imatge->getClientOriginalExtension();
+                $imatge->move(public_path('images/comments'), $imageName);
+                $imatgesPaths[] = 'images/comments/' . $imageName;
             }
         }
 
@@ -126,6 +129,7 @@ class ComentariController extends Controller
             $valoracio->{'total_' . $oldValoracio . '_estrelles'} -= 1;
             $valoracio->{'total_' . $request->valoracio . '_estrelles'} += 1;
             $valoracio->mitja_valoracions = Comentari::where('producte_id', $comentari->producte_id)->avg('valoracio');
+            $valoracio->total_comentaris += 1;
 
             if ($valoracio->save()) {
                 return response()->json($comentari, 200);
@@ -160,9 +164,8 @@ class ComentariController extends Controller
         if ($comentari->imatges) {
             $oldImages = json_decode($comentari->imatges, true);
             foreach ($oldImages as $oldImage) {
-                $imagePath = public_path(str_replace('public/', '', $oldImage));
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
+                if (file_exists(public_path($oldImage))) {
+                    unlink(public_path($oldImage));
                 }
             }
         }
