@@ -20,11 +20,16 @@ class ComentariController extends Controller
 
     public function getAllByProductId(string $productId)
     {
+        // Buscar comentari per producte id
         $comments = Comentari::where('producte_id', $productId)->get();
-        if (!$comments) {
-            return response()->json(['error' => 'No s\'han trobat comentaris per aquest producte'], 500);
+
+        // Mostrar comentaris
+        if ($comments) {
+            return response()->json($comments, 200);
         }
-        return response()->json($comments, 200);
+
+        // No s'han trobat comentaris
+        return response()->json(['error' => 'No s\'han trobat comentaris per aquest producte'], 500);
     }
 
     /**
@@ -42,12 +47,13 @@ class ComentariController extends Controller
             'producte_id' => 'required|exists:productes,id',
         ]);
 
-        // Load the product and check if the model matches
-        $caracteristica = Caracteristica::where('producte_id', $request->producte_id)->first();
-        if (!$caracteristica || $caracteristica->nom !== $request->model) {
-            return response()->json(['error' => 'El model especificat no coincideix amb el nom del producte'], 400);
+        // Agafar totes les caracteristiques del producte i comprovar que el model existeix en el producte
+        $caracteristiques = Caracteristica::where('producte_id', $request->producte_id)->pluck('nom')->toArray();
+        if (!in_array($request->model, $caracteristiques)) {
+            return response()->json(['error' => 'El model especificat no coincideix amb cap dels noms del producte'], 400);
         }
 
+        // Guardar les imatges del comentari
         $imatgesPaths = [];
         if ($request->has('imatges')) {
             foreach ($request->file('imatges') as $imatge) {
@@ -57,6 +63,7 @@ class ComentariController extends Controller
             }
         }
 
+        // Crear el comentari
         $comentari = new Comentari();
         $comentari->valoracio = $request->valoracio;
         $comentari->comentari = $request->comentari;
@@ -65,17 +72,20 @@ class ComentariController extends Controller
         $comentari->usuari_id = $request->usuari_id;
         $comentari->producte_id = $request->producte_id;
 
+        // Guardar el comentari
         if ($comentari->save()) {
-            $valoracio = Valoracio::firstOrNew(['producte_id' => $request->producte_id]);
-            $valoracio->mitja_valoracions = Comentari::where('producte_id', $request->producte_id)->avg('valoracio');
-            $valoracio->{'total_' . $request->valoracio . '_estrelles'} += 1;
-            $valoracio->total_comentaris += 1;
+            $valoracio = Valoracio::firstOrNew(['producte_id' => $request->producte_id]); // Actualitzar la valoració del producte
+            $valoracio->mitja_valoracions = Comentari::where('producte_id', $request->producte_id)->avg('valoracio'); // Actualitzar la la mitjana d'estrelles del producte
+            $valoracio->{'total_' . $request->valoracio . '_estrelles'} += 1; // Actualitzar el total d'estrelles (1-5)
+            $valoracio->total_comentaris += 1; // Actualitzar el total de comentaris
 
+            // Guardar la valoració
             if ($valoracio->save()) {
                 return response()->json($comentari, 201);
             }
         }
 
+        // No s'ha pogut guardar el comentari o la valoració
         return response()->json(['error' => 'No s\'ha pogut guardar el comentari'], 500);
     }
 
@@ -92,15 +102,16 @@ class ComentariController extends Controller
             'model' => 'required|string',
         ]);
 
+        // Buscar el comentari
         $comentari = Comentari::findOrFail($id);
 
-        $caracteristica = Caracteristica::where('producte_id', $comentari->producte_id)->first();
-        if (!$caracteristica || $caracteristica->nom !== $request->model) {
-            return response()->json(['error' => 'El model especificat no coincideix amb el nom del producte'], 400);
+        // Agafar totes les caracteristiques del producte i comprovar que el model existeix en el producte
+        $caracteristiques = Caracteristica::where('producte_id', $request->producte_id)->pluck('nom')->toArray();
+        if (!in_array($request->model, $caracteristiques)) {
+            return response()->json(['error' => 'El model especificat no coincideix amb cap dels noms del producte'], 400);
         }
 
-        $oldValoracio = $comentari->valoracio;
-
+        // Eliminar les imatges antigues
         if ($comentari->imatges) {
             $oldImages = json_decode($comentari->imatges, true);
             foreach ($oldImages as $oldImage) {
@@ -110,6 +121,7 @@ class ComentariController extends Controller
             }
         }
 
+        // Guardar les noves imatges del comentari
         $imatgesPaths = [];
         if ($request->has('imatges')) {
             foreach ($request->file('imatges') as $imatge) {
@@ -119,35 +131,48 @@ class ComentariController extends Controller
             }
         }
 
+        // Actualitzar el comentari
         $comentari->valoracio = $request->valoracio;
         $comentari->comentari = $request->comentari;
         $comentari->imatges = json_encode($imatgesPaths);
         $comentari->model = $request->model;
 
+        // Guardar el comentari
         if ($comentari->save()) {
+            // Actualitzar la valoració del producte
             $valoracio = Valoracio::firstOrNew(['producte_id' => $comentari->producte_id]);
-            $valoracio->{'total_' . $oldValoracio . '_estrelles'} -= 1;
-            $valoracio->{'total_' . $request->valoracio . '_estrelles'} += 1;
-            $valoracio->mitja_valoracions = Comentari::where('producte_id', $comentari->producte_id)->avg('valoracio');
-            $valoracio->total_comentaris += 1;
 
+            // Eliminar -1 al numero d'estrelles anterior
+            $oldValoracio = $comentari->valoracio;
+            $valoracio->{'total_' . $oldValoracio . '_estrelles'} -= 1;
+
+            // Afegir +1 al numero d'estrelles nou
+            $valoracio->{'total_' . $request->valoracio . '_estrelles'} += 1;
+            $valoracio->mitja_valoracions = Comentari::where('producte_id', $comentari->producte_id)->avg('valoracio'); // Actualitzar la mitjana d'estrelles del producte
+            $valoracio->total_comentaris += 1; // Actualitzar el total de comentaris
+
+            // Guardar la valoració
             if ($valoracio->save()) {
                 return response()->json($comentari, 200);
             }
         }
 
+        // No s'ha pogut guardar el comentari o la valoració
         return response()->json(['error' => 'No s\'ha pogut actualitzar el comentari'], 500);
     }
 
     public function incrementUtil(string $id)
     {
+        // Buscar el comentari
         $comentari = Comentari::findOrFail($id);
-        $comentari->util += 1;
+        $comentari->util += 1; // Incrementar el valor del camp util
 
+        // Guardar el comentari
         if ($comentari->save()) {
             return response()->json($comentari->util, 200);
         }
 
+        // No s'ha pogut guardar el comentari
         return response()->json(['error' => 'No s\'ha pogut actualitzar el comentari'], 500);
     }
 
@@ -156,11 +181,12 @@ class ComentariController extends Controller
      */
     public function destroy(string $id)
     {
+        // Buscar el comentari
         $comentari = Comentari::findOrFail($id);
-        $oldValoracio = $comentari->valoracio;
-        $producteId = $comentari->producte_id;
+        $oldValoracio = $comentari->valoracio; // Guardar la valoració
+        $producteId = $comentari->producte_id; // Guardar el producte id
 
-        // Delete associated images
+        // Eliminar les imatges antigues
         if ($comentari->imatges) {
             $oldImages = json_decode($comentari->imatges, true);
             foreach ($oldImages as $oldImage) {
@@ -170,17 +196,22 @@ class ComentariController extends Controller
             }
         }
 
+        // Eliminar el comentari
         if ($comentari->delete()) {
+            // Actualitzar la valoració del producte
             $valoracio = Valoracio::firstOrNew(['producte_id' => $producteId]);
-            $valoracio->{'total_' . $oldValoracio . '_estrelles'} -= 1;
-            $valoracio->total_comentaris -= 1;
-            $valoracio->mitja_valoracions = Comentari::where('producte_id', $producteId)->avg('valoracio') ?? 0;
 
+            $valoracio->{'total_' . $oldValoracio . '_estrelles'} -= 1; // Eliminar -1 al numero d'estrelles
+            $valoracio->total_comentaris -= 1; // Actualitzar la mitjana d'estrelles del producte
+            $valoracio->mitja_valoracions = Comentari::where('producte_id', $producteId)->avg('valoracio') ?? 0; // Actualitzar la mitja, si no hi ha comentaris, la mitjana es 0
+
+            // Guardar la valoracio
             if ($valoracio->save()) {
                 return response()->json(['message' => 'Comentari eliminat correctament'], 200);
             }
         }
 
+        // No s'ha pogut eliminar el comentari o guardar la valoració
         return response()->json(['error' => 'No s\'ha pogut eliminar el comentari'], 500);
     }
 }

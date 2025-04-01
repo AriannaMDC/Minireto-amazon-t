@@ -17,13 +17,16 @@ class ValoracioController extends Controller
 
     public function getValoracioByProductId(string $productId)
     {
+        // Buscar valoració per producte id
         $valoracio = Valoracio::where('producte_id', $productId)->first();
 
-        if (!$valoracio) {
-            return response()->json(['error' => 'No s\'ha trobat la valoració'], 404);
+        // Mostrar valoració
+        if ($valoracio) {
+            return response()->json($valoracio);
         }
 
-        return response()->json($valoracio);
+        // No s'ha trobat valoració
+        return response()->json(['error' => 'No s\'ha trobat la valoració'], 404);
     }
 
     /**

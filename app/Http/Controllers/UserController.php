@@ -20,25 +20,6 @@ class UserController extends Controller
         return response()->json($users, 200);
     }
 
-    public function checkUserExists(Request $request) {
-        $usuari = $request->query('usuari');
-        $email = $request->query('email');
-
-        // Validar que els paràmetres de consulta existeixen
-        if (!$usuari || !$email) {
-            return response()->json(['error' => 'Els paràmetres usuari i email són obligatoris'], 400);
-        }
-
-        // Comprovar si l'usuari existeix per nom d'usuari i email
-        $user = User::where('usuari', $usuari)->where('email', $email)->first();
-
-        if($user) {
-            return response()->json(true, 404);
-        }
-
-        return response()->json(false, 200);
-    }
-
     /**
      * Store a newly created resource in storage.
      */

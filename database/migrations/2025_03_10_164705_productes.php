@@ -15,8 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table->text('descr');
-            $table->decimal('valoracio', 2, 1)->default(0);
-            $table->integer('num_resenyes')->default(0);
             $table->decimal('preu', 10, 2);
             $table->decimal('enviament', 10, 2);
             $table->integer('dies');
