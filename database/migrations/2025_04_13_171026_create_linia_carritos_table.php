@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('comentaris', function (Blueprint $table) {
+        Schema::create('linia_carritos', function (Blueprint $table) {
             $table->id();
-            $table->integer('valoracio');
-            $table->text('comentari');
-            $table->json('imatges')->nullable();
-            $table->integer('util')->default(0);
-            $table->string('model');
+            $table->integer('quantitat');
+            $table->decimal('preu', 10, 2);
+            $table->decimal('preu_total', 10, 2);
             $table->timestamps();
 
-            $table->foreignId('usuari_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('carrito_id')->constrained('carritos')->onDelete('cascade');
             $table->foreignId('producte_id')->constrained('productes')->onDelete('cascade');
+            $table->foreignId('caracteristica_id')->constrained('caracteristiques')->onDelete('cascade');
         });
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('linia_carritos');
     }
 };

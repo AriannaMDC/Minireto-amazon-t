@@ -12,7 +12,18 @@ class Caracteristica extends Model
 
     protected $table = 'caracteristiques';
 
-    protected $fillable = ['nom', 'propietats', 'img', 'producte_id'];
+    protected $fillable = [
+        'nom',
+        'propietats',
+        'img',
+        'stock',
+        'producte_id'
+    ];
+
+    protected $casts = [
+        'propietats' => 'array',
+        'img' => 'array'
+    ];
 
     public function producte() {
         return $this->belongsTo(Producte::class, 'producte_id');

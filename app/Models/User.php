@@ -20,9 +20,15 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'usuari',
+        'nom',
         'email',
         'password',
+        'password_confirmation',
+        'img',
+        'rol',
+        'direccio',
+        'receive_info'
     ];
 
     /**
@@ -44,13 +50,30 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'receive_info' => 'boolean'
     ];
 
-    public function paymentMethods() {
+    // Relació amb els mètodes de pagament
+    public function metodesPagament()
+    {
         return $this->hasMany(MetodePagament::class, 'usuari_id');
     }
 
-    public function products() {
+    // Relació amb els productes (com a venedor)
+    public function productes()
+    {
         return $this->hasMany(Producte::class, 'vendedor_id');
+    }
+
+    // Relació amb els carritos
+    public function carritos()
+    {
+        return $this->hasMany(Carrito::class);
+    }
+
+    // Relació amb els comentaris
+    public function comentaris()
+    {
+        return $this->hasMany(Comentari::class, 'usuari_id');
     }
 }

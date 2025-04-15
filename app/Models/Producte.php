@@ -17,16 +17,15 @@ class Producte extends Model
     protected $fillable = [
         'nom',
         'descr',
-        'valoracio',
-        'num_resenyes',
         'preu',
         'enviament',
         'dies',
         'devolucio',
         'devolucioGratis',
-        'stock',
-        'categoria_id',
+        'dataAfegit',
+        'oferta',
         'destacat',
+        'categoria_id',
         'vendedor_id'
     ];
 
@@ -42,7 +41,18 @@ class Producte extends Model
         return $this->belongsTo(User::class, 'vendedor_id');
     }
 
-    public function opiniones() {
-        return $this->hasMany(Opinion::class);
+    public function liniesCarrito()
+    {
+        return $this->hasMany(LiniaCarrito::class);
+    }
+
+    public function comentaris()
+    {
+        return $this->hasMany(Comentari::class);
+    }
+
+    public function valoracio()
+    {
+        return $this->hasOne(Valoracio::class);
     }
 }

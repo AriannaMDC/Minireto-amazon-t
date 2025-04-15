@@ -12,7 +12,11 @@ class Categoria extends Model
 
     protected $table = 'categories';
 
-    protected $fillable = ['name', 'img', 'destacat'];
+    protected $fillable = [
+        'name',
+        'img',
+        'destacat'
+    ];
 
     public function productes() {
         return $this->hasMany(Producte::class);

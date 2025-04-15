@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MetodePagamentController;
 use App\Http\Controllers\ComentariController;
 use App\Http\Controllers\ValoracioController;
+use App\Http\Controllers\CarritoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +69,16 @@ Route::middleware('auth:sanctum')->group(function () {
 // Valoracions
 Route::get('/valoracions/product/{productId}', [ValoracioController::class, 'getValoracioByProductId']);
 
+// Carrito
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/carrito', [CarritoController::class, 'index']);
+    Route::post('/carrito/producte', [CarritoController::class, 'addProducte']);
+    Route::post('/carrito/incrementar/{liniaId}', [CarritoController::class, 'incrementQuantitat']);
+    Route::post('/carrito/decrementar/{liniaId}', [CarritoController::class, 'decrementQuantitat']);
+    Route::delete('/carrito/eliminar/{liniaId}', [CarritoController::class, 'removeProducte']);
+    Route::delete('/carrito/buidar', [CarritoController::class, 'buidarCarrito']);
+    Route::post('/carrito/completar', [CarritoController::class, 'completar']);
+});
 
 // ADMIN
 Route::middleware(['auth:sanctum', 'checkAdminRole'])->group(function () {

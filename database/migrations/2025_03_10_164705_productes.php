@@ -21,7 +21,6 @@ return new class extends Migration
             $table->boolean('devolucio')->default(false);
             $table->boolean('devolucioGratis')->default(false);
             $table->timestamp('dataAfegit')->useCurrent();
-            $table->integer('oferta')->default(0);
             $table->boolean('destacat')->default(false);
             $table->timestamps();
 
@@ -35,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('productes');
     }
 };

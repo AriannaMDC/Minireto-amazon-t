@@ -19,9 +19,12 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('password_confirmation');
-            $table->string('img')->nullable();
+            $table->string('img')->nullable()->default(null);
             $table->enum('rol', ['client', 'vendedor', 'admin'])->default('client');
             $table->string('direccio')->nullable();
+            // comarca --> string
+            // municipi --> string
+            // adreça --> string
             $table->boolean('receive_info')->default(false);
             $table->rememberToken();
             $table->timestamps();

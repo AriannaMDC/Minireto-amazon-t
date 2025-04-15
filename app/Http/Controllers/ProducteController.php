@@ -34,8 +34,6 @@ class ProducteController extends Controller
         $validated = $request->validate([
             'nom' => 'required',
             'descr' => 'nullable',
-            'valoracio' => 'nullable|numeric|min:0|max:5',
-            'num_resenyes' => 'nullable|integer|min:0',
             'preu' => 'required|numeric|min:0',
             'enviament' => 'required|numeric|min:0',
             'dies' => 'required|integer|min:0',
@@ -108,8 +106,6 @@ class ProducteController extends Controller
         $validated = $request->validate([
             'nom' => 'required',
             'descr' => 'nullable',
-            'valoracio' => 'nullable|numeric|min:0|max:5',
-            'num_resenyes' => 'nullable|integer|min:0',
             'preu' => 'required|numeric|min:0',
             'enviament' => 'required|numeric|min:0',
             'dies' => 'required|integer|min:0',

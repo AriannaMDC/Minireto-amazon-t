@@ -17,11 +17,14 @@ class Comentari extends Model
         'valoracio',
         'comentari',
         'imatges',
-        'created_at',
         'util',
         'model',
         'usuari_id',
         'producte_id'
+    ];
+
+    protected $casts = [
+        'imatges' => 'array'
     ];
 
     public function producte()

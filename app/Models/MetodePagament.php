@@ -21,7 +21,13 @@ class MetodePagament extends Model
         'usuari_id',
     ];
 
-    public function user() {
+    protected $hidden = [
+        'cvv',
+        'numero'
+    ];
+
+    public function usuari()
+    {
         return $this->belongsTo(User::class, 'usuari_id');
     }
 }

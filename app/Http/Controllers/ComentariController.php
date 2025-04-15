@@ -161,15 +161,24 @@ class ComentariController extends Controller
         return response()->json(['error' => 'No s\'ha pogut actualitzar el comentari'], 500);
     }
 
-    public function incrementUtil(string $id)
+    public function updateUtil(string $id, Request $request)
     {
+        // Incrementar o disminuir el valor del camp util
+        $increment = request()->query('increment', true);
+
         // Buscar el comentari
         $comentari = Comentari::findOrFail($id);
-        $comentari->util += 1; // Incrementar el valor del camp util
+
+        // Incrementar o disminuir el valor del camp util
+        if ($increment) {
+            $comentari->util += 1;
+        } else {
+            $comentari->util -= 1;
+        }
 
         // Guardar el comentari
         if ($comentari->save()) {
-            return response()->json($comentari->util, 200);
+            return response()->json($comentari, 200);
         }
 
         // No s'ha pogut guardar el comentari
