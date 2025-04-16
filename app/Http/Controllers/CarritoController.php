@@ -287,25 +287,23 @@ class CarritoController extends Controller
         return response()->json([]);
     }
 
-    public function completar()
+    public function getHistorialCompres()
     {
-        // Obtenir el carrito de l'usuari autenticat no completat
-        $carrito = Carrito::where('user_id', Auth::id())
-            ->where('completat', false)
-            ->first();
+        // Obtenir tots el carritos completats de l'usuari autenticat
+        $historial = Carrito::where('user_id', Auth::id())
+            ->where('completat', true)
+            ->with('linies')
+            ->get()
+            ->map(function ($cart) {
+                return [
+                    'id' => $cart->id,
+                    'data_compra' => $cart->updated_at,
+                    'preu_total' => $cart->linies->sum('preu_total'),
+                    'total_productes' => $cart->linies->sum('quantitat')
+                ];
+            });
 
-        // No hi ha cap carrito actiu
-        if (!$carrito) {
-            return response()->json(['message' => 'No hi ha cap carrito actiu'], 404);
-        }
-
-        // Modificar el carrito com a completat i guardar
-        $carrito->completat = true;
-        if (!$carrito->save()) {
-            return response()->json(['message' => 'Error al completar el carrito'], 500);
-        }
-
-        return response()->json(['message' => 'Comanda completada correctament']);
+        return response()->json($historial);
     }
 
     private function transformCartResponse($carrito)

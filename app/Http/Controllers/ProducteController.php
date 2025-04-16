@@ -169,9 +169,6 @@ class ProducteController extends Controller
         return response()->json(['error' => 'Producte no trobat'], 404);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         // Buscar el producte per id
@@ -202,9 +199,6 @@ class ProducteController extends Controller
         return response()->json(['error' => 'Producte no trobat'], 404);
     }
 
-    /**
-     * Get products by categoria_id.
-     */
     public function getByCategoryID(string $categoria_id)
     {
         // Buscar productes per categoria_id
@@ -219,9 +213,6 @@ class ProducteController extends Controller
         return response()->json(['error' => 'No s\'han trobat productes per aquesta categoria'], 404);
     }
 
-    /**
-     * Get products by text in their name.
-     */
     public function getByText(Request $request)
     {
         $text = $request->query('text');
@@ -241,5 +232,19 @@ class ProducteController extends Controller
 
         // Retornar error si no s'han trobat productes
         return response()->json(['error' => 'No s\'han trobat productes amb aquest text'], 404);
+    }
+
+    public function getProductesVendedor()
+    {
+        // Obtenir productes vendedor
+        $productes = Producte::with(['caracteristiques'])->where('vendedor_id', Auth::user()->id)->get();
+
+        // Hi ha productes
+        if ($productes->count() > 0) {
+            return response()->json($productes, 200);
+        }
+
+        // No hi ha productes
+        return response()->json(['error' => 'No s\'han trobat productes per aquest venedor'], 404);
     }
 }

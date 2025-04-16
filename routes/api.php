@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum', 'checkVendorRole')->group(function () {
     Route::post('/products', [ProducteController::class, 'store']);
     Route::put('/products/{id}', [ProducteController::class, 'update'])->middleware('checkProductUserId');
     Route::delete('/products/{id}', [ProducteController::class, 'destroy'])->middleware('checkProductUserId');
+    Route::get('/products/vendedor', [ProducteController::class, 'getProductesVendedor']);
 });
 
 // Categories
@@ -72,6 +73,7 @@ Route::get('/valoracions/product/{productId}', [ValoracioController::class, 'get
 // Carrito
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/carrito', [CarritoController::class, 'index']);
+    Route::get('/carrito/historial', [CarritoController::class, 'getHistorialCompres']);
     Route::post('/carrito/producte', [CarritoController::class, 'addProducte']);
     Route::post('/carrito/incrementar/{liniaId}', [CarritoController::class, 'incrementQuantitat']);
     Route::post('/carrito/decrementar/{liniaId}', [CarritoController::class, 'decrementQuantitat']);
