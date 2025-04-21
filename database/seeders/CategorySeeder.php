@@ -18,5 +18,23 @@ class CategorySeeder extends Seeder
             'img' => 'images/categories/category_placeholder.jpg',
             'destacat' => false
         ]);
+
+        Categoria::create([
+            'name' => 'categoria2',
+            'img' => 'images/categories/category_placeholder.jpg',
+            'destacat' => true
+        ]);
+
+        Categoria::create([
+            'name' => 'categoria3',
+            'img' => 'images/categories/category_placeholder.jpg',
+            'destacat' => true
+        ]);
+
+        Categoria::create([
+            'name' => 'categoria4',
+            'img' => 'images/categories/category_placeholder.jpg',
+            'destacat' => true
+        ]);
     }
 }

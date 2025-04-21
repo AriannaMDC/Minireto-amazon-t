@@ -18,6 +18,18 @@ class Categoria extends Model
         'destacat'
     ];
 
+    protected function getImgAttribute($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $value = str_replace(url(''), '', $value);
+        $value = trim($value, '[]"\\');
+
+        return url($value);
+    }
+
     public function productes() {
         return $this->hasMany(Producte::class);
     }

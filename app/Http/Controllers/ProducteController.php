@@ -58,16 +58,15 @@ class ProducteController extends Controller
         // Crear les caracteristiques del producte
         if(isset($validated['caracteristiques'])) {
             foreach ($validated['caracteristiques'] as $caracteristica) {
-                if(isset($caracteristica['img'])) { // Guardar imatges
+                if(isset($caracteristica['img'])) {
                     $imagePaths = [];
                     foreach ($caracteristica['img'] as $image) {
                         $imageName = Str::random(32) . '.' . $image->getClientOriginalExtension();
                         $image->move(public_path('images/products'), $imageName);
                         $imagePaths[] = 'images/products/' . $imageName;
                     }
-                    $caracteristica['img'] = json_encode($imagePaths);
+                    $caracteristica['img'] = $imagePaths;
                 }
-                // Crear la caracteristica
                 $producte->caracteristiques()->create($caracteristica);
             }
         }
@@ -133,13 +132,11 @@ class ProducteController extends Controller
             if(isset($validated['caracteristiques'])) {
                 // Eliminar les imatges antigues
                 foreach ($producte->caracteristiques as $caracteristica) {
-                    if(isset($caracteristica->img)) {
-                        $images = json_decode($caracteristica->img, true);
-                        if(is_array($images)) {
-                            foreach ($images as $imagePath) {
-                                if(file_exists(public_path($imagePath))) {
-                                    unlink(public_path($imagePath));
-                                }
+                    if(!empty($caracteristica->img)) {
+                        foreach ($caracteristica->img as $imagePath) {
+                            $path = str_replace(url(''), '', $imagePath);
+                            if(file_exists(public_path($path))) {
+                                unlink(public_path($path));
                             }
                         }
                     }
@@ -155,7 +152,7 @@ class ProducteController extends Controller
                             $image->move(public_path('images/products'), $imageName);
                             $imagePaths[] = 'images/products/' . $imageName;
                         }
-                        $caracteristica['img'] = json_encode($imagePaths);
+                        $caracteristica['img'] = $imagePaths;
                     }
                     $producte->caracteristiques()->create($caracteristica);
                 }
@@ -172,19 +169,17 @@ class ProducteController extends Controller
     public function destroy(string $id)
     {
         // Buscar el producte per id
-        $producte = Producte::find($id);
+        $producte = Producte::with('caracteristiques')->find($id);
 
         // Eliminar el producte
         if($producte) {
             // Eliminar les imatges del producte
             foreach ($producte->caracteristiques as $caracteristica) {
-                if(isset($caracteristica->img)) {
-                    $images = json_decode($caracteristica->img, true);
-                    if(is_array($images)) {
-                        foreach ($images as $imagePath) {
-                            if(file_exists(public_path($imagePath))) {
-                                unlink(public_path($imagePath));
-                            }
+                if(!empty($caracteristica->img)) {
+                    foreach ($caracteristica->img as $imagePath) {
+                        $path = str_replace(url(''), '', $imagePath);
+                        if(file_exists(public_path($path))) {
+                            unlink(public_path($path));
                         }
                     }
                 }

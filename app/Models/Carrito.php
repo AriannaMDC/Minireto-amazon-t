@@ -14,13 +14,11 @@ class Carrito extends Model
         'completat'
     ];
 
-    // Relació amb l'usuari (pertany a un usuari)
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relació amb les línies del carrito (té moltes línies)
     public function linies()
     {
         return $this->hasMany(LiniaCarrito::class);

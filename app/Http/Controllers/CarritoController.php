@@ -313,8 +313,8 @@ class CarritoController extends Controller
             'user_id' => $carrito->user_id,
             'id' => $carrito->id,
             'lines' => $carrito->linies->map(function ($linia) {
-                $imgArray = json_decode($linia->caracteristica->img, true);
-                $firstImage = $imgArray ? $imgArray[0] : null;
+                $imgArray = $linia->caracteristica->img;
+                $firstImage = !empty($imgArray) ? $imgArray[0] : null;
 
                 return [
                     'id' => $linia->id,

@@ -53,25 +53,33 @@ class User extends Authenticatable
         'receive_info' => 'boolean'
     ];
 
-    // Relació amb els mètodes de pagament
+    protected function getImgAttribute($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $value = str_replace(url(''), '', $value);
+        $value = trim($value, '[]"\\');
+
+        return url($value);
+    }
+
     public function metodesPagament()
     {
         return $this->hasMany(MetodePagament::class, 'usuari_id');
     }
 
-    // Relació amb els productes (com a venedor)
     public function productes()
     {
         return $this->hasMany(Producte::class, 'vendedor_id');
     }
 
-    // Relació amb els carritos
     public function carritos()
     {
         return $this->hasMany(Carrito::class);
     }
 
-    // Relació amb els comentaris
     public function comentaris()
     {
         return $this->hasMany(Comentari::class, 'usuari_id');

@@ -18,9 +18,9 @@ class CategoriaController extends Controller
 
         // Mostrar categories destacades
         if($destacat === 'true') {
-            $categories = Categoria::where('destacat', true)->get();
+            $categories = Categoria::where('destacat', true)->get(['id', 'name', 'img']);
         } else { // Mostrar totes les categories
-            $categories = Categoria::all();
+            $categories = Categoria::select('id', 'name', 'img')->get();
         }
 
         return response()->json($categories, 200);
@@ -64,7 +64,7 @@ class CategoriaController extends Controller
     public function show(string $id)
     {
         // Buscar la categoria per id
-        $categoria = Categoria::find($id);
+        $categoria = Categoria::select('id', 'name', 'img')->find($id);
 
         // Si no existeix la categoria retornar error
         if(!$categoria) {

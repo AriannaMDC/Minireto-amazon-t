@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('123123123'),
                 'password_confirmation' => Hash::make('123123123'),
                 'rol' => 'vendedor',
-                'img' => 'assets/images/depresio.jpg',
+                'img' => 'public\images\users\user_placeholder.png',
                 'receive_info' => false,
             ],
             [
@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('123123123'),
                 'password_confirmation' => Hash::make('123123123'),
                 'rol' => 'vendedor',
-                'img' => 'assets/images/depresio.jpg',
+                'img' => 'public\images\users\user_placeholder.png',
                 'receive_info' => true,
             ],
             [
@@ -45,7 +45,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('123123123'),
                 'password_confirmation' => Hash::make('123123123'),
                 'rol' => 'vendedor',
-                'img' => 'assets/images/depresio.jpg',
+                'img' => 'public\images\users\user_placeholder.png',
                 'receive_info' => false,
             ],
             [
@@ -56,7 +56,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('123123123'),
                 'password_confirmation' => Hash::make('123123123'),
                 'rol' => 'client',
-                'img' => null,
+                'img' => 'public\images\users\user_placeholder.png',
                 'receive_info' => true,
             ],
             [
@@ -67,7 +67,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('123123123'),
                 'password_confirmation' => Hash::make('123123123'),
                 'rol' => 'admin',
-                'img' => null,
+                'img' => 'public\images\users\user_placeholder.png',
                 'receive_info' => false,
             ],
         ]);

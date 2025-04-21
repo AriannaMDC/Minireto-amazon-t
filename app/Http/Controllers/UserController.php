@@ -72,7 +72,10 @@ class UserController extends Controller
         $token = $user->createToken('authToken')->plainTextToken;
 
         // Retornar l'usuari i el token
-        return response()->json(['user' => $user, 'token' => $token], 200);
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ], 200);
     }
 
     public function logout(Request $request)
@@ -172,7 +175,7 @@ class UserController extends Controller
 
         // Guardar l'usuari
         if($user->save()) {
-            return response()->json(['message' => 'Usuari actualitzat correctament', $user], 200);
+            return response()->json(['message' => 'Usuari actualitzat correctament', 'user' => $user], 200);
         }
 
         // Retornar error si no s'ha pogut actualitzar l'usuari
@@ -224,7 +227,7 @@ class UserController extends Controller
 
         // Guardar l'usuari
         if($user->save()) {
-            return response()->json(['message' => 'Usuari actualitzat correctament', $user], 200);
+            return response()->json(['message' => 'Usuari actualitzat correctament', 'user' => $user], 200);
         }
 
         // Retornar error si no s'ha pogut actualitzar l'usuari

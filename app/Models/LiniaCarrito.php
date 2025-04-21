@@ -20,19 +20,16 @@ class LiniaCarrito extends Model
         'preu_total'
     ];
 
-    // Relació amb el carrito
     public function carrito()
     {
         return $this->belongsTo(Carrito::class);
     }
 
-    // Relació amb el producte
     public function producte()
     {
         return $this->belongsTo(Producte::class);
     }
 
-    // Relació amb la caracteristica
     public function caracteristica()
     {
         return $this->belongsTo(Caracteristica::class);

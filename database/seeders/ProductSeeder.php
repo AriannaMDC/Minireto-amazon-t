@@ -13,7 +13,6 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        // First product with one model, stock 100
         $producte1 = Producte::create([
             'nom' => 'Producte 1',
             'descr' => 'Producte descripcio',
@@ -23,7 +22,7 @@ class ProductSeeder extends Seeder
             'devolucio' => true,
             'devolucioGratis' => false,
             'categoria_id' => 1,
-            'destacat' => true,
+            'destacat' => false,
             'vendedor_id' => 1
         ]);
 
@@ -35,7 +34,6 @@ class ProductSeeder extends Seeder
             'img' => json_encode(['images/products/product_placeholder.jpg'])
         ]);
 
-        // Second product with two models, stock 10 and 50
         $producte2 = Producte::create([
             'nom' => 'Producte 2',
             'descr' => 'Producte descripcio',
@@ -66,7 +64,6 @@ class ProductSeeder extends Seeder
             ]
         ]);
 
-        // Third product with one model, stock 0
         $producte3 = Producte::create([
             'nom' => 'Producte 3',
             'descr' => 'Producte descripcio',
