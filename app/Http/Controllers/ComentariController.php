@@ -59,7 +59,7 @@ class ComentariController extends Controller
             foreach ($request->file('imatges') as $imatge) {
                 $imageName = Str::random(32) . '.' . $imatge->getClientOriginalExtension();
                 $imatge->move(public_path('images/comments'), $imageName);
-                $imatgesPaths[] = 'images/comments/' . $imageName;
+                $imatgesPaths[] = 'images/comments/' . $imageName; // Store relative path
             }
         }
 
@@ -67,7 +67,7 @@ class ComentariController extends Controller
         $comentari = new Comentari();
         $comentari->valoracio = $request->valoracio;
         $comentari->comentari = $request->comentari;
-        $comentari->imatges = json_encode($imatgesPaths);
+        $comentari->imatges = $imatgesPaths; // Store array directly, cast will handle JSON encoding
         $comentari->model = $request->model;
         $comentari->usuari_id = $request->usuari_id;
         $comentari->producte_id = $request->producte_id;
@@ -106,14 +106,14 @@ class ComentariController extends Controller
         $comentari = Comentari::findOrFail($id);
 
         // Agafar totes les caracteristiques del producte i comprovar que el model existeix en el producte
-        $caracteristiques = Caracteristica::where('producte_id', $request->producte_id)->pluck('nom')->toArray();
+        $caracteristiques = Caracteristica::where('producte_id', $comentari->producte_id)->pluck('nom')->toArray();
         if (!in_array($request->model, $caracteristiques)) {
             return response()->json(['error' => 'El model especificat no coincideix amb cap dels noms del producte'], 400);
         }
 
         // Eliminar les imatges antigues
-        if ($comentari->imatges) {
-            $oldImages = json_decode($comentari->imatges, true);
+        if ($comentari->getRawOriginal('imatges')) {
+            $oldImages = json_decode($comentari->getRawOriginal('imatges'), true);
             foreach ($oldImages as $oldImage) {
                 if (file_exists(public_path($oldImage))) {
                     unlink(public_path($oldImage));
@@ -127,14 +127,14 @@ class ComentariController extends Controller
             foreach ($request->file('imatges') as $imatge) {
                 $imageName = Str::random(32) . '.' . $imatge->getClientOriginalExtension();
                 $imatge->move(public_path('images/comments'), $imageName);
-                $imatgesPaths[] = 'images/comments/' . $imageName;
+                $imatgesPaths[] = 'images/comments/' . $imageName; // Store relative path
             }
         }
 
         // Actualitzar el comentari
         $comentari->valoracio = $request->valoracio;
         $comentari->comentari = $request->comentari;
-        $comentari->imatges = json_encode($imatgesPaths);
+        $comentari->imatges = $imatgesPaths; // Store array directly, cast will handle JSON encoding
         $comentari->model = $request->model;
 
         // Guardar el comentari

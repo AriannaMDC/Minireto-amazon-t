@@ -27,6 +27,25 @@ class Comentari extends Model
         'imatges' => 'array'
     ];
 
+    protected function getImatgesAttribute($value)
+    {
+        if (empty($value)) {
+            return [];
+        }
+
+        // If $value is already an array (due to the cast), use it directly
+        // otherwise decode it from JSON string
+        $images = is_array($value) ? $value : json_decode($value, true);
+
+        if (!is_array($images)) {
+            return [];
+        }
+
+        return array_map(function($path) {
+            return url($path);
+        }, $images);
+    }
+
     public function producte()
     {
         return $this->belongsTo(Producte::class, 'producte_id');

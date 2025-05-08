@@ -138,6 +138,9 @@ class UserController extends Controller
             'rol' => 'required|in:client,vendedor,admin',
             'img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'direccio' => 'nullable|string',
+            'comarca' => 'nullable|string',
+            'municipi' => 'nullable|string',
+            'provincia' => 'nullable|in:Barcelona,Tarragona,Lleida,Girona',
         ]);
 
         // Buscar l'usuari per id
@@ -159,6 +162,21 @@ class UserController extends Controller
         // Actualitzar la direccio si s'ha enviat
         if($request->has('direccio')) {
             $user->direccio = $request->direccio;
+        }
+
+        // Actualitzar la comarca si s'ha enviat
+        if($request->has('comarca')) {
+            $user->comarca = $request->comarca;
+        }
+
+        // Actualitzar el municipi si s'ha enviat
+        if($request->has('municipi')) {
+            $user->municipi = $request->municipi;
+        }
+
+        // Actualitzar la provincia si s'ha enviat
+        if($request->has('provincia')) {
+            $user->provincia = $request->provincia;
         }
 
         // Actualitzar la imatge si s'ha enviat
@@ -192,6 +210,9 @@ class UserController extends Controller
             'password_confirmation' => 'nullable|same:password',
             'img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'direccio' => 'nullable|string',
+            'comarca' => 'nullable|string',
+            'municipi' => 'nullable|string',
+            'provincia' => 'nullable|in:Barcelona,Tarragona,Lleida,Girona',
         ]);
 
         // Obtenir l'usuari autenticat
@@ -211,6 +232,21 @@ class UserController extends Controller
         // Actualitzar la direccio si s'ha enviat
         if($request->has('direccio')) {
             $user->direccio = $request->direccio;
+        }
+
+        // Actualitzar la comarca si s'ha enviat
+        if($request->has('comarca')) {
+            $user->comarca = $request->comarca;
+        }
+
+        // Actualitzar el municipi si s'ha enviat
+        if($request->has('municipi')) {
+            $user->municipi = $request->municipi;
+        }
+
+        // Actualitzar la provincia si s'ha enviat
+        if($request->has('provincia')) {
+            $user->provincia = $request->provincia;
         }
 
         // Actualitzar la imatge del usuari si s'ha enviat

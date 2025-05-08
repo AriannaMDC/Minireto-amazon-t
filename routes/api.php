@@ -63,7 +63,7 @@ Route::get('/comentaris/product/{productId}', [ComentariController::class, 'getA
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/comentaris', [ComentariController::class, 'store']);
     Route::put('/comentaris/{id}', [ComentariController::class, 'update'])->middleware('checkCommentUesrId');
-    Route::put('/comentaris/{id}/increment_util', [ComentariController::class, 'incrementUtil']);
+    Route::put('/comentaris/{id}/increment_util', [ComentariController::class, 'updateUtil']);
     Route::delete('/comentaris/{id}', [ComentariController::class, 'destroy'])->middleware('checkCommentUesrId');
 });
 

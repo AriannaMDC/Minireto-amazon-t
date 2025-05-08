@@ -28,6 +28,9 @@ class User extends Authenticatable
         'img',
         'rol',
         'direccio',
+        'comarca',
+        'municipi',
+        'provincia',
         'receive_info'
     ];
 
@@ -53,14 +56,17 @@ class User extends Authenticatable
         'receive_info' => 'boolean'
     ];
 
+    /**
+     * Get the img attribute with full URL path.
+     *
+     * @param  string  $value
+     * @return string
+     */
     protected function getImgAttribute($value)
     {
         if (empty($value)) {
-            return null;
+            return url('images/users/default.png');
         }
-
-        $value = str_replace(url(''), '', $value);
-        $value = trim($value, '[]"\\');
 
         return url($value);
     }
