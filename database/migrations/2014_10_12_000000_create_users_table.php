@@ -21,10 +21,12 @@ return new class extends Migration
             $table->string('password_confirmation');
             $table->string('img')->nullable()->default(null);
             $table->enum('rol', ['client', 'vendedor', 'admin'])->default('client');
+            $table->text('descripcion')->nullable();
             $table->string('direccio')->nullable();
             $table->string('comarca')->nullable();
             $table->string('municipi')->nullable();
             $table->enum('provincia', ['Barcelona', 'Tarragona', 'Lleida', 'Girona'])->nullable();
+            $table->string('telefon')->nullable();
             $table->boolean('receive_info')->default(false);
             $table->rememberToken();
             $table->timestamps();

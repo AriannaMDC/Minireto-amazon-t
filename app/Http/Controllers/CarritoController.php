@@ -262,7 +262,7 @@ class CarritoController extends Controller
         // Obtenir el carrito de l'usuari autenticat no completat
         $carrito = Carrito::where('user_id', Auth::id())
             ->where('completat', false)
-            ->with('linies.caracteristica')
+            ->with(['linies.producte', 'linies.caracteristica'])
             ->first();
 
         // No hi ha cap carrito actiu
@@ -287,18 +287,83 @@ class CarritoController extends Controller
         return response()->json([]);
     }
 
+    public function completar()
+    {
+        // Obtenir el carrito de l'usuari autenticat no completat
+        $carrito = Carrito::where('user_id', Auth::id())
+            ->where('completat', false)
+            ->with(['linies.producte', 'linies.caracteristica'])
+            ->first();
+
+        // No hi ha cap carrito actiu
+        if (!$carrito) {
+            return response()->json(['message' => 'No hi ha cap carrito actiu'], 404);
+        }
+
+        // Verificar que el carrito té productes
+        if ($carrito->linies->isEmpty()) {
+            return response()->json(['message' => 'El carrito està buit'], 400);
+        }
+
+        // Marcar el carrito com completat
+        $carrito->completat = true;
+
+        // Guardar el carrito
+        if (!$carrito->save()) {
+            return response()->json(['message' => 'Error al completar el carrito'], 500);
+        }
+
+        // Calcular enviament total i dies
+        $maxDies = 0;
+        $enviamentTotal = 0;
+        $productesUnics = [];
+
+        foreach ($carrito->linies as $linia) {
+            $maxDies = max($maxDies, $linia->producte->dies);
+            if (!in_array($linia->producte_id, $productesUnics)) {
+                $enviamentTotal += $linia->producte->enviament;
+                $productesUnics[] = $linia->producte_id;
+            }
+        }
+
+        return response()->json([
+            'message' => 'Compra realitzada amb èxit',
+            'carrito_id' => $carrito->id,
+            'total_productes' => $carrito->linies->sum('quantitat'),
+            'preu_total' => $carrito->linies->sum('preu_total'),
+            'enviament_total' => $enviamentTotal,
+            'dies_enviament' => $maxDies,
+            'data_compra' => $carrito->updated_at
+        ]);
+    }
+
     public function getHistorialCompres()
     {
         // Obtenir tots el carritos completats de l'usuari autenticat
         $historial = Carrito::where('user_id', Auth::id())
             ->where('completat', true)
-            ->with('linies')
+            ->with(['linies.producte', 'linies.caracteristica'])
             ->get()
             ->map(function ($cart) {
+                // Calcular enviament total i dies
+                $maxDies = 0;
+                $enviamentTotal = 0;
+                $productesUnics = [];
+
+                foreach ($cart->linies as $linia) {
+                    $maxDies = max($maxDies, $linia->producte->dies);
+                    if (!in_array($linia->producte_id, $productesUnics)) {
+                        $enviamentTotal += $linia->producte->enviament;
+                        $productesUnics[] = $linia->producte_id;
+                    }
+                }
+
                 return [
                     'id' => $cart->id,
                     'data_compra' => $cart->updated_at,
                     'preu_total' => $cart->linies->sum('preu_total'),
+                    'enviament_total' => $enviamentTotal,
+                    'dies_enviament' => $maxDies,
                     'total_productes' => $cart->linies->sum('quantitat')
                 ];
             });
@@ -308,10 +373,30 @@ class CarritoController extends Controller
 
     private function transformCartResponse($carrito)
     {
+        // Calcular el total de dies (màxim dels dies de tots els productes)
+        $maxDies = 0;
+
+        // Calcular cost d'enviament total (suma dels enviaments de productes únics)
+        $enviamentTotal = 0;
+        $productesUnics = [];
+
+        foreach ($carrito->linies as $linia) {
+            // Actualitzar màxim de dies
+            $maxDies = max($maxDies, $linia->producte->dies);
+
+            // Sumar cost d'enviament només una vegada per producte
+            if (!in_array($linia->producte_id, $productesUnics)) {
+                $enviamentTotal += $linia->producte->enviament;
+                $productesUnics[] = $linia->producte_id;
+            }
+        }
+
         // Modificar dades que es mostren del carrito
         return [
             'user_id' => $carrito->user_id,
             'id' => $carrito->id,
+            'enviament_total' => $enviamentTotal,
+            'dies_enviament' => $maxDies,
             'lines' => $carrito->linies->map(function ($linia) {
                 $imgArray = $linia->caracteristica->img;
                 $firstImage = !empty($imgArray) ? $imgArray[0] : null;

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Producte;
+use App\Models\Valoracio;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -70,6 +72,18 @@ class ProducteController extends Controller
                 $producte->caracteristiques()->create($caracteristica);
             }
         }
+
+        // Crear una valoració buida per al producte
+        Valoracio::create([
+            'total_comentaris' => 0,
+            'mitja_valoracions' => 0,
+            'total_5_estrelles' => 0,
+            'total_4_estrelles' => 0,
+            'total_3_estrelles' => 0,
+            'total_2_estrelles' => 0,
+            'total_1_estrelles' => 0,
+            'producte_id' => $producte->id,
+        ]);
 
         // Retornar el producte creat
         if($producte) {
@@ -241,5 +255,27 @@ class ProducteController extends Controller
 
         // No hi ha productes
         return response()->json(['error' => 'No s\'han trobat productes per aquest venedor'], 404);
+    }
+
+    /**
+     * Get the count of products a vendedor has by ID
+     */
+    public function getProductsCountByVendedor($vendedor_id)
+    {
+        // Check if vendedor exists
+        $vendedor = User::where('id', $vendedor_id)->where('rol', 'vendedor')->first();
+
+        if (!$vendedor) {
+            return response()->json(['error' => 'Venedor no trobat'], 404);
+        }
+
+        // Count products of the vendedor
+        $count = Producte::where('vendedor_id', $vendedor_id)->count();
+
+        return response()->json([
+            'vendedor_id' => $vendedor_id,
+            'vendedor_name' => $vendedor->nom,
+            'products_count' => $count
+        ], 200);
     }
 }

@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\MetodePagament;
 use App\Models\Producte;
+use App\Models\Carrito;
+use App\Models\Comentari;
 
 class User extends Authenticatable
 {
@@ -27,10 +29,12 @@ class User extends Authenticatable
         'password_confirmation',
         'img',
         'rol',
+        'descripcion',
         'direccio',
         'comarca',
         'municipi',
         'provincia',
+        'telefon',
         'receive_info'
     ];
 

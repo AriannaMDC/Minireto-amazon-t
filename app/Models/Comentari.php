@@ -33,8 +33,6 @@ class Comentari extends Model
             return [];
         }
 
-        // If $value is already an array (due to the cast), use it directly
-        // otherwise decode it from JSON string
         $images = is_array($value) ? $value : json_decode($value, true);
 
         if (!is_array($images)) {

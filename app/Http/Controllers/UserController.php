@@ -32,6 +32,7 @@ class UserController extends Controller
             'password' => 'required|min:8|confirmed',
             'password_confirmation' => 'required|same:password',
             'rol' => 'required|in:client,vendedor,admin',
+            'descripcion' => 'nullable|string|max:1000',
         ]);
 
         // Crear un nou usuari
@@ -43,6 +44,11 @@ class UserController extends Controller
         $user->rol = $request->rol;
         $user->img = 'images/users/default.png'; // Imatge per defecte
         $user->password_confirmation = Hash::make($request->password_confirmation); // Encriptar la confirmació de contrasenya
+
+        // Si és vendedor, afegim descripció si s'ha enviat
+        if ($request->rol === 'vendedor' && $request->has('descripcion')) {
+            $user->descripcion = $request->descripcion;
+        }
 
         // Guardar el usuari
         if($user->save()) {
@@ -141,6 +147,8 @@ class UserController extends Controller
             'comarca' => 'nullable|string',
             'municipi' => 'nullable|string',
             'provincia' => 'nullable|in:Barcelona,Tarragona,Lleida,Girona',
+            'telefon' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:1000',
         ]);
 
         // Buscar l'usuari per id
@@ -179,6 +187,16 @@ class UserController extends Controller
             $user->provincia = $request->provincia;
         }
 
+        // Actualitzar el telèfon si s'ha enviat
+        if($request->has('telefon')) {
+            $user->telefon = $request->telefon;
+        }
+
+        // Actualitzar la descripción si s'ha enviat (només per a vendedors)
+        if($request->has('descripcion') && $user->rol === 'vendedor') {
+            $user->descripcion = $request->descripcion;
+        }
+
         // Actualitzar la imatge si s'ha enviat
         if($request->hasFile('img')) {
             // Eliminar la imatge anterior
@@ -213,6 +231,8 @@ class UserController extends Controller
             'comarca' => 'nullable|string',
             'municipi' => 'nullable|string',
             'provincia' => 'nullable|in:Barcelona,Tarragona,Lleida,Girona',
+            'telefon' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:1000',
         ]);
 
         // Obtenir l'usuari autenticat
@@ -247,6 +267,16 @@ class UserController extends Controller
         // Actualitzar la provincia si s'ha enviat
         if($request->has('provincia')) {
             $user->provincia = $request->provincia;
+        }
+
+        // Actualitzar el telèfon si s'ha enviat
+        if($request->has('telefon')) {
+            $user->telefon = $request->telefon;
+        }
+
+        // Actualitzar la descripción si s'ha enviat (només per a vendedors)
+        if($request->has('descripcion') && $user->rol === 'vendedor') {
+            $user->descripcion = $request->descripcion;
         }
 
         // Actualitzar la imatge del usuari si s'ha enviat

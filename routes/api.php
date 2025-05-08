@@ -37,6 +37,7 @@ Route::get('/products', [ProducteController::class, 'index']);
 Route::get('/products/show/{id}', [ProducteController::class, 'show']);
 Route::get('/products/category/{id}', [ProducteController::class, 'getByCategoryID']);
 Route::get('/products/text', [ProducteController::class, 'getByText']);
+Route::middleware('auth:sanctum')->get('/products/vendedor/{vendedor_id}/count', [ProducteController::class, 'getProductsCountByVendedor']);
 
 Route::middleware('auth:sanctum', 'checkVendorRole')->group(function () {
     Route::post('/products', [ProducteController::class, 'store']);
