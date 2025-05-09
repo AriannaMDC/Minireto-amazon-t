@@ -386,4 +386,32 @@ class UserController extends Controller
         // Retornar error si no s'ha pogut eliminar l'usuari
         return response()->json(['error' => 'Error en eliminar l\'usuari'], 500);
     }
+
+    /**
+     * Canvia l'estat de receive_info per a l'usuari autenticat.
+     */
+    public function configUpdate()
+    {
+        // Obtenir l'usuari autenticat
+        $user = User::find(Auth::user()->id);
+
+        // Retornar error si no s'ha trobat l'usuari
+        if(!$user) {
+            return response()->json(['error' => 'Usuari no trobat'], 404);
+        }
+
+        // Canviar el valor de receive_info
+        $user->receive_info = !$user->receive_info;
+
+        // Guardar l'usuari
+        if($user->save()) {
+            return response()->json([
+                'message' => 'Preferències actualitzades correctament',
+                'receive_info' => $user->receive_info
+            ], 200);
+        }
+
+        // Retornar error si no s'ha pogut actualitzar l'usuari
+        return response()->json(['error' => 'Error en actualitzar les preferències'], 500);
+    }
 }
