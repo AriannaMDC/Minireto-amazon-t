@@ -8,6 +8,7 @@ use App\Http\Controllers\MetodePagamentController;
 use App\Http\Controllers\ComentariController;
 use App\Http\Controllers\ValoracioController;
 use App\Http\Controllers\CarritoController;
+use App\Http\Controllers\EstadistiquesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +83,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/carrito/eliminar/{liniaId}', [CarritoController::class, 'removeProducte']);
     Route::delete('/carrito/buidar', [CarritoController::class, 'buidarCarrito']);
     Route::post('/carrito/completar', [CarritoController::class, 'completar']);
+});
+
+// Statistics routes
+Route::middleware(['auth:sanctum', 'checkVendorRole'])->group(function () {
+    Route::get('/estadistiques/productes-per-month', [EstadistiquesController::class, 'getProductesPerMonth']);
+    Route::get('/estadistiques/compres-per-provincia', [EstadistiquesController::class, 'getCompresPerProvincia']);
+    Route::get('/estadistiques/top-5-productes', [EstadistiquesController::class, 'getTop5Productes']);
+    Route::get('/estadistiques/producte/{producteId}', [EstadistiquesController::class, 'getProducteStats']);
 });
 
 // ADMIN

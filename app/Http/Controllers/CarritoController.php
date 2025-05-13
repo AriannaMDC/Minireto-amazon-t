@@ -6,20 +6,24 @@ use App\Models\Carrito;
 use App\Models\LiniaCarrito;
 use App\Models\Producte;
 use App\Models\Caracteristica;
+use App\Models\Estadistiques;
+use App\Models\EstadistiquesProducte;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CarritoController extends Controller
 {
     public function index()
     {
-        // Obtenir el carrito de l'usuari autenticat no completat
+        // Obtenir el carrito no completat de l'usuari autenticat
         $carrito = Carrito::where('user_id', Auth::id())
             ->where('completat', false)
             ->with(['linies.producte', 'linies.caracteristica'])
             ->first();
 
-        // No hi ha cap carrito actiu
+        // No existeix cap carrito actiu
         if (!$carrito) {
             return response()->json([]);
         }
@@ -300,20 +304,55 @@ class CarritoController extends Controller
             return response()->json(['message' => 'No hi ha cap carrito actiu'], 404);
         }
 
-        // Verificar que el carrito té productes
+        // Verificar que el carrito no estigui buit
         if ($carrito->linies->isEmpty()) {
             return response()->json(['message' => 'El carrito està buit'], 400);
         }
 
-        // Marcar el carrito com completat
+        // Marcar el carrito com a completat
         $carrito->completat = true;
-
-        // Guardar el carrito
         if (!$carrito->save()) {
             return response()->json(['message' => 'Error al completar el carrito'], 500);
         }
 
-        // Calcular enviament total i dies
+        // Get current month and year
+        $month = (int)date('n');
+        $year = (int)date('Y');
+
+        // Get user's province from the request
+        $provincia = 'Barcelona'; // TODO: Get from user profile or shipping address
+
+        // Actualitzar estadístiques per província
+        $estadistica = Estadistiques::firstOrNew([
+            'user_id' => Auth::id(),
+            'provincia' => $provincia,
+            'month' => $month,
+            'year' => $year
+        ]);
+        $estadistica->total_compres = ($estadistica->total_compres ?? 0) + $carrito->linies->sum('quantitat');
+        if (!$estadistica->save()) {
+            return response()->json(['message' => 'Error al actualitzar estadístiques provincials'], 500);
+        }
+
+        // Actualitzar estadístiques de productes amb model i ingressos
+        foreach ($carrito->linies as $linia) {
+            $productStats = EstadistiquesProducte::firstOrNew([
+                'user_id' => Auth::id(),
+                'producte_id' => $linia->producte_id,
+                'caracteristica_id' => $linia->caracteristica_id,
+                'month' => $month,
+                'year' => $year
+            ]);
+            // Actualitzar total de compres i ingressos (preu amb descompte ja aplicat)
+            $productStats->total_compres = ($productStats->total_compres ?? 0) + $linia->quantitat;
+            $productStats->total_ingresos = ($productStats->total_ingresos ?? 0) + $linia->preu_total;
+            
+            if (!$productStats->save()) {
+                return response()->json(['message' => 'Error al actualitzar estadístiques de productes'], 500);
+            }
+        }
+
+        // Calculate shipping total and days
         $maxDies = 0;
         $enviamentTotal = 0;
         $productesUnics = [];
