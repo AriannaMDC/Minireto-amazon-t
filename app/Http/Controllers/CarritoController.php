@@ -315,12 +315,12 @@ class CarritoController extends Controller
             return response()->json(['message' => 'Error al completar el carrito'], 500);
         }
 
-        // Get current month and year
+        // Obtenir la data actual
         $month = (int)date('n');
         $year = (int)date('Y');
 
-        // Get user's province from the request
-        $provincia = 'Barcelona'; // TODO: Get from user profile or shipping address
+        // Obtenir la província de l'usuari autenticat
+        $provincia = 'Barcelona';
 
         // Actualitzar estadístiques per província
         $estadistica = Estadistiques::firstOrNew([

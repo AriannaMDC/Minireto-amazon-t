@@ -23,7 +23,6 @@ class MetodePagament extends Model
 
     protected $hidden = [
         'cvv',
-        'numero'
     ];
 
     public function usuari()
