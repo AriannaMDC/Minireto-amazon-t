@@ -346,7 +346,7 @@ class CarritoController extends Controller
             // Actualitzar total de compres i ingressos (preu amb descompte ja aplicat)
             $productStats->total_compres = ($productStats->total_compres ?? 0) + $linia->quantitat;
             $productStats->total_ingresos = ($productStats->total_ingresos ?? 0) + $linia->preu_total;
-            
+
             if (!$productStats->save()) {
                 return response()->json(['message' => 'Error al actualitzar estadístiques de productes'], 500);
             }
