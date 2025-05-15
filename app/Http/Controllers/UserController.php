@@ -11,8 +11,15 @@ use Illuminate\Support\Str;
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
+     * Display a listing of the resou        // Actualitzar la imatge si s'ha enviat
+        if($request->hasFile('img')) {
+            // Eliminar la imatge anterior
+            if($user->img !== 'images/users/user_placeholder.png' && file_exists(public_path($user->img))) {
+                unlink(public_path($user->img));
+            }
+
+            $imagePath = 'images/users/user_placeholder.png';
+            $user->img = $imagePath;*/
     public function index()
     {
         // Mostrar tots els usuaris
@@ -42,7 +49,7 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password); // Encriptar la contrasenya
         $user->rol = $request->rol;
-        $user->img = 'images/users/default.png'; // Imatge per defecte
+        $user->img = 'images/users/user_placeholder.png'; // Imatge per defecte
         $user->password_confirmation = Hash::make($request->password_confirmation); // Encriptar la confirmació de contrasenya
 
         // Si és vendedor, afegim descripció si s'ha enviat
@@ -200,12 +207,11 @@ class UserController extends Controller
         // Actualitzar la imatge si s'ha enviat
         if($request->hasFile('img')) {
             // Eliminar la imatge anterior
-            if($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
+            if($user->img !== 'images/users/user_placeholder.png' && file_exists(public_path($user->img))) {
                 unlink(public_path($user->img));
             }
 
-            $imagePath = 'images/users/' . Str::random(32) . '.' . $request->file('img')->getClientOriginalExtension();
-            $request->file('img')->move(public_path('images/users'), $imagePath);
+            $imagePath = 'images/users/user_placeholder.png';
             $user->img = $imagePath;
         }
 
@@ -350,7 +356,7 @@ class UserController extends Controller
         }
 
         // Eliminar la imatge del usuari
-        if($user->img !== 'images/users/default.png' && file_exists(public_path($user->img))) {
+        if($user->img !== 'images/users/user_placeholder.png' && file_exists(public_path($user->img))) {
             unlink(public_path($user->img));
         }
 

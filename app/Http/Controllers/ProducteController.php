@@ -49,6 +49,7 @@ class ProducteController extends Controller
             'caracteristiques.*.img' => 'required|array',
             'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
             'caracteristiques.*.stock' => 'required|integer|min:0',
+            'caracteristiques.*.oferta' => 'nullable|integer|min:0',
         ]);
 
         // Afegir el id del usuari que ha iniciat sessio
@@ -133,6 +134,7 @@ class ProducteController extends Controller
             'caracteristiques.*.img' => 'nullable|array',
             'caracteristiques.*.img.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
             'caracteristiques.*.stock' => 'required|integer|min:0',
+            'caracteristiques.*.oferta' => 'nullable|integer|min:0',
         ]);
 
         // Buscar el producte per id
