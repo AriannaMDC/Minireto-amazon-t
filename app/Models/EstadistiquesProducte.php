@@ -14,6 +14,7 @@ class EstadistiquesProducte extends Model
         'producte_id',
         'caracteristica_id',
         'total_compres',
+        'total_ingresos',
         'month',
         'year'
     ];

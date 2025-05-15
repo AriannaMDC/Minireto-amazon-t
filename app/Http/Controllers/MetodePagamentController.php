@@ -165,16 +165,14 @@ class MetodePagamentController extends Controller
             return response()->json(['message' => 'No hi ha cap carret actiu'], 404);
         }
 
-        // Actualitzar carret com a completat
-        $carrito->completat = true;
+        // Assignar mètode de pagament
         $carrito->metode_pagament_id = $metodePagament->id;
-
-        // Guardar carret
         if (!$carrito->save()) {
-            return response()->json(['message' => 'Error al processar el pagament'], 500);
+            return response()->json(['message' => 'Error al guardar el mètode de pagament'], 500);
         }
 
-        // Carret guardat correctament
-        return response()->json(['message' => 'Pagament processat i comanda completada correctament']);
+        // Completar el carrito mitjançant el CarritoController per actualitzar estadístiques
+        $carritoController = new CarritoController();
+        return $carritoController->completar();
     }
 }

@@ -85,7 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/carrito/completar', [CarritoController::class, 'completar']);
 });
 
-// Statistics routes
+// Estadistiques
 Route::middleware(['auth:sanctum', 'checkVendorRole'])->group(function () {
     Route::get('/estadistiques/productes-per-month', [EstadistiquesController::class, 'getProductesPerMonth']);
     Route::get('/estadistiques/compres-per-provincia', [EstadistiquesController::class, 'getCompresPerProvincia']);

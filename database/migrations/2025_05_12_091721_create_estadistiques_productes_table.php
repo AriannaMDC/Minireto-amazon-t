@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('producte_id')->constrained('productes')->onDelete('cascade');
             $table->foreignId('caracteristica_id')->nullable()->constrained('caracteristiques')->onDelete('cascade');
             $table->integer('total_compres');
+            $table->decimal('total_ingresos', 10, 2);
             $table->integer('month');
             $table->integer('year');
             $table->timestamps();

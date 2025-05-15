@@ -8,32 +8,29 @@ use App\Models\Categoria;
 
 class CategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         Categoria::create([
-            'name' => 'categoria1',
-            'img' => 'images/categories/category_placeholder.jpg',
+            'name' => 'Informàtica',
+            'img' => '',
             'destacat' => false
         ]);
 
         Categoria::create([
-            'name' => 'categoria2',
-            'img' => 'images/categories/category_placeholder.jpg',
+            'name' => 'Llar',
+            'img' => 'images/categories/categoriallar.png',
             'destacat' => true
         ]);
 
         Categoria::create([
-            'name' => 'categoria3',
-            'img' => 'images/categories/category_placeholder.jpg',
-            'destacat' => true
+            'name' => 'Roba',
+            'img' => '',
+            'destacat' => false
         ]);
 
         Categoria::create([
-            'name' => 'categoria4',
-            'img' => 'images/categories/category_placeholder.jpg',
+            'name' => 'Carnestoltes',
+            'img' => 'images/categories/categoriacarnestoltes.png',
             'destacat' => true
         ]);
     }

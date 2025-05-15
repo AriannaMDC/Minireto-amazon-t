@@ -17,11 +17,12 @@ class Caracteristica extends Model
         'propietats',
         'img',
         'stock',
-        'producte_id'
+        'producte_id',
+        'oferta'
     ];
 
     protected $casts = [
-        'propietats' => 'array',
+        'propietats' => 'json',
         'img' => 'array'
     ];
 

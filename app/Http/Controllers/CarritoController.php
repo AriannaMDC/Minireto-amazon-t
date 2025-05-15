@@ -8,10 +8,8 @@ use App\Models\Producte;
 use App\Models\Caracteristica;
 use App\Models\Estadistiques;
 use App\Models\EstadistiquesProducte;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CarritoController extends Controller
 {
@@ -336,16 +334,24 @@ class CarritoController extends Controller
 
         // Actualitzar estadístiques de productes amb model i ingressos
         foreach ($carrito->linies as $linia) {
-            $productStats = EstadistiquesProducte::firstOrNew([
-                'user_id' => Auth::id(),
-                'producte_id' => $linia->producte_id,
-                'caracteristica_id' => $linia->caracteristica_id,
-                'month' => $month,
-                'year' => $year
-            ]);
-            // Actualitzar total de compres i ingressos (preu amb descompte ja aplicat)
-            $productStats->total_compres = ($productStats->total_compres ?? 0) + $linia->quantitat;
-            $productStats->total_ingresos = ($productStats->total_ingresos ?? 0) + $linia->preu_total;
+            // Buscar o crear un nou registre per aquest producte, usuari i mes
+            $productStats = EstadistiquesProducte::updateOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'producte_id' => $linia->producte_id,
+                    'caracteristica_id' => $linia->caracteristica_id,
+                    'month' => $month,
+                    'year' => $year
+                ],
+                [
+                    'total_compres' => 0,
+                    'total_ingresos' => 0
+                ]
+            );
+
+            // Actualitzar total de compres i ingresos
+            $productStats->total_compres += $linia->quantitat;
+            $productStats->total_ingresos += $linia->preu_total;
 
             if (!$productStats->save()) {
                 return response()->json(['message' => 'Error al actualitzar estadístiques de productes'], 500);

@@ -15,6 +15,11 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CategorySeeder::class,
             ProductSeeder::class,
+            MetodePagamentSeeder::class,
+            ComentarisSeeder::class,
+            ValoracionsSeeder::class,
+            EstadistiquesSeeder::class,
+            EstadistiquesProductesSeeder::class,
         ]);
     }
 }
