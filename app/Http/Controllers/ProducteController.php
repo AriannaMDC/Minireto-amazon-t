@@ -125,7 +125,6 @@ class ProducteController extends Controller
             'dies' => 'required|integer|min:0',
             'devolucio' => 'required|boolean',
             'devolucioGratis' => 'required|boolean',
-            'oferta' => 'nullable|integer|min:0',
             'categoria_id' => 'required|exists:categories,id',
             'destacat' => 'nullable|boolean',
             'caracteristiques' => 'nullable|array',
